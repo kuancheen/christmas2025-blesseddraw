@@ -375,6 +375,9 @@
             // Prize Count State
             const [prizeCount, setPrizeCount] = useState(() => safeParse('blessed_prize_count', 5));
             
+            // Draw History State: { number: string, prizeLabel: string, claimed: boolean, timestamp: number }[]
+            const [drawHistory, setDrawHistory] = useState(() => safeParse('blessed_draw_history', []));
+
             // Ref to store the DOM element for the 'Drawn' status of each box
             const numberBoxRefs = useRef({}); 
             
@@ -394,6 +397,8 @@
             useEffect(() => { localStorage.setItem('blessed_pool', JSON.stringify(numberPool)); }, [numberPool]);
             useEffect(() => { localStorage.setItem('blessed_boxes', JSON.stringify(boxes)); }, [boxes]);
             useEffect(() => { localStorage.setItem('blessed_prize_count', prizeCount.toString()); }, [prizeCount]);
+            useEffect(() => { localStorage.setItem('blessed_draw_history', JSON.stringify(drawHistory)); }, [drawHistory]);
+
 
             // EFFECT to manage box count when prizeCount changes
             useEffect(() => {
@@ -415,19 +420,42 @@
                 if (newBoxes.length !== boxes.length) {
                     setBoxes(newBoxes);
                 }
-            }, [prizeCount]); // Depend only on prizeCount
+            }, [prizeCount]); 
 
             // -- Handlers --
             const toggleBox = (id) => {
-                const newBoxes = boxes.map(b => b.id === id ? { ...b, active: !b.active } : b);
+                const toggledBox = boxes.find(b => b.id === id);
+                if (!toggledBox) return;
+                
+                const newActiveState = !toggledBox.active;
+                const newBoxes = boxes.map(b => b.id === id ? { ...b, active: newActiveState } : b);
                 setBoxes(newBoxes);
+
+                // If the box has a drawn number, update its claimed status in the history
+                if (toggledBox.currentNumber !== "0000") {
+                    const isNowClaimed = !newActiveState; // If newActiveState is false, it's claimed (true)
+                    
+                    setDrawHistory(prevHistory => {
+                        // We must find the *last* instance of this number in history to update its claim status
+                        const historyIndex = prevHistory.map(item => item.number).lastIndexOf(toggledBox.currentNumber);
+                        
+                        if (historyIndex !== -1) {
+                            const newHistory = [...prevHistory];
+                            // Update the claimed status of the history entry
+                            newHistory[historyIndex] = { ...newHistory[historyIndex], claimed: isNowClaimed };
+                            return newHistory;
+                        }
+                        return prevHistory;
+                    });
+                }
             };
 
             const resetData = () => {
                 setNumberPool(prev => prev.map(n => ({ ...n, drawn: false })));
                 setBoxes(prev => prev.map((b, i) => ({ ...b, currentNumber: "0000", active: true, id: i, label: `Prize ${i + 1}` })));
                 setRevealCounts({});
-                setPrizeCount(5); // Reset prize count to default of 5 on full reset
+                setPrizeCount(5); 
+                setDrawHistory([]); // Clear the history on full reset
             };
 
             const handleDraw = () => {
@@ -454,15 +482,31 @@
 
                 const newBoxes = [...boxes];
                 const newPool = [...numberPool];
+                // Use a map to store winners for delayed history update
+                const winnersMap = new Map(); 
 
                 activeBoxes.forEach((box, idx) => {
-                    newBoxes[box.id] = { ...newBoxes[box.id], currentNumber: winners[idx].val };
-                    const pIdx = newPool.findIndex(n => n.val === winners[idx].val);
+                    const winningNumber = winners[idx].val;
+                    
+                    // 1. Update Boxes (UI) - instant update for the target number
+                    newBoxes[box.id] = { ...newBoxes[box.id], currentNumber: winningNumber };
+                    
+                    // 2. Update Pool (Mark as drawn) - instant update
+                    const pIdx = newPool.findIndex(n => n.val === winningNumber);
                     if(pIdx !== -1) newPool[pIdx].drawn = true;
+
+                    // 3. Store winner info for delayed History update
+                    winnersMap.set(box.id, {
+                        number: winningNumber,
+                        prizeLabel: box.label,
+                        claimed: false,
+                        timestamp: Date.now()
+                    });
                 });
 
                 setBoxes(newBoxes);
                 setNumberPool(newPool);
+                // History update is intentionally skipped here and done inside the timeout below
 
                 let globalDelay = 500; 
                 let completedBoxes = 0;
@@ -479,11 +523,17 @@
                             
                             if (digit === 4) {
                                 
+                                // --- HISTORY UPDATE GOES HERE (AFTER FINAL DIGIT LANDS) ---
+                                const historyEntry = winnersMap.get(box.id);
+                                if (historyEntry) {
+                                    setDrawHistory(prev => [...prev, historyEntry]);
+                                }
+                                // --- END HISTORY UPDATE ---
+
                                 setTimeout(() => {
                                     const fireConfetti = typeof window.confetti === 'function' ? window.confetti : null;
 
                                     if (fireConfetti) {
-                                        // Wait a tiny bit more for the DOM to update with the 'DRAWN' badge
                                         setTimeout(() => {
                                             const boxElement = numberBoxRefs.current[box.id];
                                             if (boxElement) {
@@ -511,7 +561,7 @@
                                          setIsDrawing(false);
                                     }
 
-                                }, 500); // 500ms delay after the last digit appears
+                                }, 500); 
                             }
                         }, digitDelay);
                     }
@@ -621,6 +671,43 @@
                             <span>Numbers Remaining: <span className="text-white">{numberPool.filter(n => !n.drawn).length}</span></span>
                             <span>Total Drawn: <span className="text-white">{numberPool.filter(n => n.drawn).length}</span></span>
                         </div>
+                        
+                        {/* DRAW HISTORY SECTION */}
+                        {drawHistory.length > 0 && (
+                            <div className="mt-6 pt-4 border-t border-slate-700">
+                                <h3 className="text-xs text-slate-400 uppercase tracking-wider mb-2 font-sans flex items-center gap-1">
+                                    <LucideIcon name="history" className="w-3 h-3 text-slate-400"/>
+                                    Draw History (Latest First)
+                                </h3>
+                                <div className="max-h-28 overflow-y-auto pr-2">
+                                    {/* History entries are displayed in reverse order for "Latest First" */}
+                                    {[...drawHistory].reverse().map((entry, index) => (
+                                        <div 
+                                            // The key now includes index to handle multiple draws of the same number in a complex scenario, though current logic prevents this.
+                                            key={`${entry.timestamp}-${entry.number}-${index}`} 
+                                            className={`flex justify-between items-center text-sm p-1 rounded transition-colors ${
+                                                entry.claimed 
+                                                ? 'text-red-300 bg-red-900/10' 
+                                                : 'text-white hover:bg-slate-800'
+                                            }`}
+                                        >
+                                            <span className="font-mono text-lg font-bold tracking-widest">
+                                                {entry.number}
+                                            </span>
+                                            <span className="text-slate-400 text-xs flex items-center gap-2">
+                                                {entry.prizeLabel}
+                                                {entry.claimed && (
+                                                    <span className="bg-red-600 text-white px-2 py-0.5 rounded-full text-xs font-bold uppercase ml-2">
+                                                        CLAIMED
+                                                    </span>
+                                                )}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                     </div>
 
                     <SettingsModal 
