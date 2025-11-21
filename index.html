@@ -19,10 +19,11 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <!-- Canvas Confetti -->
+    <!-- This script is now correctly accessed as window.confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Playfair+Display:wght=700&display=swap" rel="stylesheet">
 
     <style>
         body {
@@ -144,7 +145,7 @@
             }, [isLocked, isSpinning, target]);
 
             return (
-                <div className="w-10 h-16 sm:w-12 sm:h-20 md:w-16 md:h-24 bg-slate-800 rounded-lg mx-0.5 sm:mx-1 digit-card flex items-center justify-center relative">
+                <div className="w-10 h-16 sm:w-12 sm:h-20 md:w-14 md:h-20 bg-slate-800 rounded-lg mx-0.5 sm:mx-1 digit-card flex items-center justify-center relative">
                     <span className={`text-3xl sm:text-4xl md:text-5xl font-mono font-bold text-white ${!isLocked && isSpinning ? 'blur-[1px] text-slate-200' : 'text-white'}`}>
                         {displayVal}
                     </span>
@@ -153,11 +154,19 @@
         };
 
         // A Group of 4 Digits (One Jackpot Box)
-        const NumberBox = ({ number, isActive, label, revealedCount, isSpinning }) => {
+        const NumberBox = ({ number, isActive, label, revealedCount, isDrawing, setRef }) => { 
             const safeNumber = (number !== undefined && number !== null) ? number : "0000";
             const paddedNumber = safeNumber.toString().padStart(4, '0');
             const targetDigits = paddedNumber.split('');
-            const isFullyDrawn = isActive && revealedCount === 4 && safeNumber !== "0000" && !isSpinning;
+
+            // Digits are spinning if the global draw is on AND this box hasn't finished revealing (revealedCount < 4)
+            const digitsAreSpinning = isDrawing && revealedCount < 4;
+
+            // The box is fully drawn if the draw is complete (revealedCount === 4) and it has a number.
+            const isFullyDrawn = isActive && revealedCount === 4 && safeNumber !== "0000"; 
+            
+            // If not actively drawing, the count should be 4 to show the final number
+            const finalRevealedCount = isDrawing ? (revealedCount || 0) : 4;
 
             return (
                 <div className={`flex flex-col items-center p-4 rounded-xl transition-all duration-500 ${isActive ? 'bg-slate-900/80 gold-border scale-100 opacity-100' : 'bg-slate-900/30 border border-slate-800 scale-95 opacity-50 grayscale'}`}>
@@ -169,13 +178,13 @@
                                 <FlipDigit 
                                     key={i} 
                                     target={d} 
-                                    isSpinning={isSpinning}
-                                    isLocked={i < revealedCount}
+                                    isSpinning={digitsAreSpinning}
+                                    isLocked={i < finalRevealedCount}
                                 />
                             ))
                         ) : (
                             [1,2,3,4].map((_, i) => (
-                                <div key={i} className="w-10 h-16 sm:w-12 sm:h-20 md:w-16 md:h-24 bg-slate-800/50 rounded-lg mx-0.5 flex items-center justify-center">
+                                <div key={i} className="w-10 h-16 sm:w-12 sm:h-20 md:w-14 md:h-20 bg-slate-800/50 rounded-lg mx-0.5 flex items-center justify-center">
                                     <span className="text-slate-600 text-2xl">-</span>
                                 </div>
                             ))
@@ -184,8 +193,9 @@
                     
                     <div className="mt-3 h-8 flex items-center gap-2">
                          {isFullyDrawn && (
-                            <span className="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded-full border border-green-400/20">
-                                Drawn
+                            // Capture ref on the Drawn status element (This element will be visible when revealedCount hits 4)
+                            <span ref={setRef} className="text-xs font-bold text-green-400 bg-green-400/10 px-2 py-1 rounded-full border border-green-400/20">
+                                DRAWN
                             </span>
                          )}
                          {!isActive && <span className="text-xs text-red-400">Prize Claimed</span>}
@@ -196,24 +206,38 @@
 
         const SettingsModal = ({ isOpen, onClose, numberPool, setNumberPool, resetData }) => {
             const [textInput, setTextInput] = useState("");
+            const [confirmingReset, setConfirmingReset] = useState(false);
 
             useEffect(() => {
                 const text = numberPool.map(n => `${n.val}`).join('\n');
                 setTextInput(text);
+                if (isOpen) setConfirmingReset(false);
             }, [isOpen]); 
 
             const handleSave = () => {
                 const lines = textInput.split('\n').map(s => s.trim()).filter(s => s !== "");
                 const newPool = lines.map(val => {
-                    // Retain drawn status for existing numbers
                     const existing = numberPool.find(n => n.val === val);
-                    // Ensure the number is a 4-digit string
                     const paddedVal = val.padStart(4, '0');
                     return { val: paddedVal, drawn: existing ? existing.drawn : false };
                 });
                 setNumberPool(newPool);
                 onClose();
             };
+            
+            const handleResetClick = () => {
+                if (confirmingReset) {
+                    resetData();
+                    onClose();
+                } else {
+                    setConfirmingReset(true);
+                }
+            };
+            
+            const handleClose = () => {
+                setConfirmingReset(false);
+                onClose();
+            }
 
             if (!isOpen) return null;
 
@@ -222,7 +246,7 @@
                     <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl flex flex-col max-h-[90vh]">
                         <div className="p-6 border-b border-slate-800 flex justify-between items-center">
                             <h2 className="text-2xl text-amber-500 font-bold">Data Management</h2>
-                            <button onClick={onClose} className="text-slate-400 hover:text-white">
+                            <button onClick={handleClose} className="text-slate-400 hover:text-white">
                                 <LucideIcon name="x" />
                             </button>
                         </div>
@@ -244,18 +268,22 @@
                             </div>
                             
                             <div className="flex justify-between items-center border-t border-slate-800 pt-4">
-                                <button 
-                                    // Using custom modal instead of the banned window.confirm
-                                    onClick={() => { 
-                                        if (window.confirm("Are you sure you want to reset all 'Drawn' statuses? This cannot be undone.")) {
-                                            resetData();
-                                            onClose();
-                                        }
-                                    }}
-                                    className="text-red-400 text-sm hover:text-red-300 underline"
-                                >
-                                    Reset Draw History
-                                </button>
+                                <div className="flex items-center gap-4">
+                                    <button 
+                                        onClick={handleResetClick}
+                                        className={`text-sm hover:text-red-300 underline transition-colors ${
+                                            confirmingReset 
+                                            ? 'text-red-300 font-bold border-2 border-red-500/50 px-2 py-1 rounded-md bg-red-900/20' 
+                                            : 'text-red-400'
+                                        }`}
+                                    >
+                                        {confirmingReset ? "Click AGAIN to CONFIRM RESET" : "Reset Draw History"}
+                                    </button>
+                                    {confirmingReset && (
+                                        <span className="text-red-400 text-xs">Warning: This action is permanent!</span>
+                                    )}
+                                </div>
+                                
                                 <div className="text-right text-slate-500 text-xs">
                                     Total Loaded: {textInput.split('\n').filter(t=>t.trim()).length}
                                 </div>
@@ -263,7 +291,7 @@
                         </div>
 
                         <div className="p-6 border-t border-slate-800 flex justify-end gap-3">
-                            <button onClick={onClose} className="px-4 py-2 text-slate-300 hover:text-white">Cancel</button>
+                            <button onClick={handleClose} className="px-4 py-2 text-slate-300 hover:text-white">Cancel</button>
                             <button onClick={handleSave} className="px-6 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg shadow-lg shadow-amber-600/20 transition-all">
                                 Save Changes
                             </button>
@@ -280,9 +308,11 @@
             const [isDrawing, setIsDrawing] = useState(false);
             const [showSettings, setShowSettings] = useState(false);
             
+            // Ref to store the DOM element for the 'Drawn' status of each box
+            const numberBoxRefs = useRef({}); 
+            
             const [numberPool, setNumberPool] = useState(() => {
                 const saved = localStorage.getItem('blessed_pool');
-                // Use saved data or the newly generated pool (200 numbers between 0000 and 2000)
                 return saved ? JSON.parse(saved) : generateInitialPool(); 
             });
 
@@ -298,8 +328,7 @@
             });
 
             const [revealCounts, setRevealCounts] = useState({});
-            const [spinningBoxes, setSpinningBoxes] = useState([]);
-
+            
             // -- Effects --
             useEffect(() => { localStorage.setItem('blessed_pool', JSON.stringify(numberPool)); }, [numberPool]);
             useEffect(() => { localStorage.setItem('blessed_boxes', JSON.stringify(boxes)); }, [boxes]);
@@ -314,20 +343,18 @@
                 setNumberPool(prev => prev.map(n => ({ ...n, drawn: false })));
                 setBoxes(prev => prev.map(b => ({ ...b, currentNumber: "0000" })));
                 setRevealCounts({});
-                setSpinningBoxes([]);
             };
 
             const handleDraw = () => {
                 const activeBoxes = boxes.filter(b => b.active);
                 if (activeBoxes.length === 0) { 
-                    // Custom message box logic instead of alert
-                    window.alert("Please activate at least one box."); 
+                    console.error("Please activate at least one box."); 
                     return; 
                 }
 
                 const availableNumbers = numberPool.filter(n => !n.drawn);
                 if (availableNumbers.length < activeBoxes.length) {
-                    window.alert(`Not enough numbers! Need ${activeBoxes.length}, have ${availableNumbers.length}. Please load more numbers.`);
+                    console.error(`Not enough numbers! Need ${activeBoxes.length}, have ${availableNumbers.length}. Please load more numbers.`);
                     return;
                 }
 
@@ -336,7 +363,6 @@
                 const initialCounts = {};
                 activeBoxes.forEach(b => initialCounts[b.id] = 0);
                 setRevealCounts(initialCounts);
-                setSpinningBoxes(activeBoxes.map(b => b.id));
 
                 const shuffled = [...availableNumbers].sort(() => 0.5 - Math.random());
                 const winners = shuffled.slice(0, activeBoxes.length);
@@ -354,6 +380,7 @@
                 setNumberPool(newPool);
 
                 let globalDelay = 500; 
+                let completedBoxes = 0;
 
                 activeBoxes.forEach((box, boxIdx) => {
                     for (let digit = 1; digit <= 4; digit++) {
@@ -365,17 +392,46 @@
                                 [box.id]: digit
                             }));
                             
-                            if (boxIdx === activeBoxes.length - 1 && digit === 4) {
+                            // Check if this specific box is finished revealing
+                            if (digit === 4) {
+                                
+                                // Priority 2: This state change instantly makes the 'DRAWN' badge visible
+                                
                                 setTimeout(() => {
-                                    setIsDrawing(false);
-                                    setSpinningBoxes([]);
-                                    confetti({
-                                        particleCount: 150,
-                                        spread: 70,
-                                        origin: { y: 0.6 },
-                                        colors: ['#fbbf24', '#ef4444', '#ffffff']
-                                    });
-                                }, 500);
+                                    const boxElement = numberBoxRefs.current[box.id];
+                                    
+                                    // Priority 1: Fire confetti using the global function
+                                    const fireConfetti = typeof window.confetti === 'function' ? window.confetti : null;
+
+                                    if (boxElement && fireConfetti) {
+                                        // Wait a tiny bit more for the DOM to update with the 'DRAWN' badge
+                                        setTimeout(() => {
+                                            const rect = boxElement.getBoundingClientRect();
+                                            const x = rect.left + rect.width / 2;
+                                            const y = rect.top + rect.height / 2;
+
+                                            fireConfetti({
+                                                particleCount: 150,
+                                                spread: 60,
+                                                angle: 90,
+                                                origin: { 
+                                                    x: x / window.innerWidth,
+                                                    y: y / window.innerHeight
+                                                },
+                                                colors: ['#fcd34d', '#d97706', '#10b981', '#ffffff']
+                                            });
+                                        }, 50); // Small delay to ensure badge position is captured
+
+                                    }
+                                    
+                                    completedBoxes++;
+
+                                    // Only stop overall drawing when the LAST box is finished
+                                    if (completedBoxes === activeBoxes.length) {
+                                         setIsDrawing(false);
+                                    }
+
+                                }, 500); // 500ms delay after the last digit appears
                             }
                         }, digitDelay);
                     }
@@ -407,8 +463,10 @@
                                 label={box.label}
                                 number={box.currentNumber}
                                 isActive={box.active}
-                                isSpinning={spinningBoxes.includes(box.id)}
-                                revealedCount={isDrawing ? (revealCounts[box.id] || 0) : 4}
+                                isDrawing={isDrawing} // Pass global draw state
+                                revealedCount={revealCounts[box.id]}
+                                // Function to set the ref for the 'Drawn' element
+                                setRef={(el) => (numberBoxRefs.current[box.id] = el)} 
                             />
                         ))}
                     </div>
