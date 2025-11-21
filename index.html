@@ -269,12 +269,7 @@
                 // Format: YYYY-MM-DD HH:MM:SS.mmm
                 return `${y}-${mo}-${d} ${h}:${m}:${s}.${ms}`;
             };
-
-            const getBoxId = (label) => {
-                const box = boxes.find(b => b.label === label);
-                return box ? box.id : null;
-            }
-
+            
             return (
                 <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-4 w-full h-80 flex flex-col shadow-inner">
                     <h3 className="text-sm text-slate-400 uppercase tracking-wider mb-3 font-sans flex items-center gap-2">
@@ -286,13 +281,19 @@
                             <p className="text-center text-slate-500 p-4">No draws have been recorded yet.</p>
                         ) : (
                             drawHistory.slice().reverse().map((entry, index) => {
-                                const boxId = getBoxId(entry.prizeLabel);
-                                const isLatestEntry = index === 0;
+                                // Find the prize box associated with this history entry
+                                const box = boxes.find(b => b.label === entry.prizeLabel);
+                                const boxId = box ? box.id : null;
+                                
+                                // FIX: Use the box's canonical claimed status for rendering consistency.
+                                // If the box is not found (e.g., deleted), fall back to the history entry's internal status.
+                                const isPrizeClaimed = box ? box.claimed : entry.claimed; 
 
-                                let statusText = entry.claimed ? "Claimed" : "Unclaimed";
-                                let statusColor = entry.claimed ? "text-red-400" : "text-green-400";
-                                let buttonClass = entry.claimed ? "bg-red-600/20 text-red-300 hover:bg-red-600/40" : "bg-green-600/20 text-green-300 hover:bg-green-600/40";
-                                let buttonIcon = entry.claimed ? "wallet-x" : "gift";
+                                // Determine status and classes based on the canonical box state (isPrizeClaimed)
+                                let statusText = isPrizeClaimed ? "Claimed" : "Unclaimed";
+                                let statusColor = isPrizeClaimed ? "text-red-400" : "text-green-400";
+                                let buttonClass = isPrizeClaimed ? "bg-red-600/20 text-red-300 hover:bg-red-600/40" : "bg-green-600/20 text-green-300 hover:bg-green-600/40";
+                                let buttonIcon = isPrizeClaimed ? "wallet-x" : "gift";
 
                                 return (
                                     <div key={`${entry.timestamp}-${entry.prizeLabel}-${index}`} className="flex justify-between items-center bg-slate-800/70 p-3 rounded-lg border border-slate-700/50 transition-all hover:bg-slate-800">
@@ -302,16 +303,18 @@
                                             <span className="text-slate-400 text-xs font-mono">{entry.prizeLabel} at {formatTime(entry.timestamp)}</span>
                                         </div>
                                         <div className="flex items-center gap-3">
+                                            {/* Display status based on the canonical box state */}
                                             <span className={`text-xs font-bold ${statusColor}`}>{statusText}</span>
                                             {boxId !== null && (
                                                 <button
+                                                    // Action remains toggleBox(boxId)
                                                     onClick={() => toggleBox(boxId)}
                                                     disabled={isDrawing}
                                                     className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full font-semibold transition-colors ${buttonClass}`}
-                                                    title={entry.claimed ? "Mark as Unclaimed (Re-activate Prize)" : "Mark as Claimed (Disable Prize)"}
+                                                    title={isPrizeClaimed ? "Mark as Unclaimed (Re-activate Prize)" : "Mark as Claimed (Disable Prize)"}
                                                 >
                                                     <LucideIcon name={buttonIcon} className="w-3 h-3" />
-                                                    {entry.claimed ? 'Unclaim' : 'Claim'}
+                                                    {isPrizeClaimed ? 'Unclaim' : 'Claim'}
                                                 </button>
                                             )}
                                         </div>
@@ -561,12 +564,13 @@
                 // Update history if a number was drawn
                 if (isDrawn) {
                     setDrawHistory(prevHistory => {
-                        // Find the most recent draw entry for this number
+                        // Find the most recent draw entry for this number (which is the one currently in the box)
                         const historyIndex = prevHistory.map(item => item.number).lastIndexOf(toggledBox.currentNumber);
                         
                         if (historyIndex !== -1) {
                             const newHistory = [...prevHistory];
-                            // Update the claimed status of the history entry
+                            // Update the claimed status of the history entry (This is for the record, 
+                            // but the UI now relies on the box.claimed state for consistency)
                             newHistory[historyIndex] = { ...newHistory[historyIndex], claimed: newClaimedState };
                             return newHistory;
                         }
