@@ -5,24 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blessed Jackpot Draw</title>
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <!-- React & ReactDOM --><script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     
-    <!-- Babel -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Babel --><script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Lucide Icons --><script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- Canvas Confetti -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <!-- Canvas Confetti --><script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Playfair+Display:wght=700&display=swap" rel="stylesheet">
+    <!-- Fonts --><link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Playfair+Display:wght=700&display=swap" rel="stylesheet">
 
     <style>
         body {
@@ -105,7 +99,8 @@
         const getInitialBoxes = (count) => {
             const boxes = [];
             for (let i = 0; i < count; i++) {
-                boxes.push({ id: i, label: `Prize ${i + 1}`, active: true, currentNumber: "0000" });
+                // ADDED: claimed state to differentiate manual claiming from auto-disabling/skipping
+                boxes.push({ id: i, label: `Prize ${i + 1}`, active: true, currentNumber: "0000", claimed: false });
             }
             return boxes;
         };
@@ -142,7 +137,7 @@
         };
 
         // Single Digit Flip Card (With Cycling Animation)
-        const FlipDigit = ({ target, isLocked, isSpinning, isClaimed }) => {
+        const FlipDigit = ({ target, isLocked, isSpinning, isClaimed, isActive }) => { // Added isActive prop
             const [displayVal, setDisplayVal] = useState("0");
 
             useEffect(() => {
@@ -162,18 +157,20 @@
             
             // Determine text color based on state
             let textColorClass = 'text-white';
+            let bgColorClass = 'bg-slate-800';
+
             if (isClaimed) {
-                 // Claimed but showing the number - use a muted red/white combo
                 textColorClass = 'text-red-300 opacity-80'; 
+                bgColorClass = 'bg-red-900/40';
+            } else if (!isActive) { // If not active (and not claimed), it's disabled/skipped
+                textColorClass = 'text-slate-400 opacity-80';
+                bgColorClass = 'bg-slate-900/40'; // A darker gray for disabled numbers
             } else if (!isLocked && isSpinning) {
-                // Spinning state
                 textColorClass = 'blur-[1px] text-slate-200';
             }
 
             return (
-                <div className={`w-10 h-16 sm:w-12 sm:h-20 md:w-14 md:h-20 rounded-lg mx-0.5 sm:mx-1 digit-card flex items-center justify-center relative ${
-                    isClaimed ? 'bg-red-900/40' : 'bg-slate-800'
-                }`}>
+                <div className={`w-10 h-16 sm:w-12 sm:h-20 md:w-14 md:h-20 rounded-lg mx-0.5 sm:mx-1 digit-card flex items-center justify-center relative ${bgColorClass}`}>
                     <span className={`text-3xl sm:text-4xl md:text-5xl font-mono font-bold ${textColorClass}`}>
                         {displayVal}
                     </span>
@@ -182,47 +179,65 @@
         };
 
         // A Group of 4 Digits (One Jackpot Box)
-        const NumberBox = ({ number, isActive, label, revealedCount, isDrawing, setRef }) => { 
+        const NumberBox = ({ number, isActive, label, revealedCount, isDrawing, setRef, isClaimed }) => { 
             const safeNumber = (number !== undefined && number !== null) ? number : "0000";
             const paddedNumber = safeNumber.toString().padStart(4, '0');
             const targetDigits = paddedNumber.split('');
 
-            // Box spins if it's active, the draw is running, AND the revealedCount is less than 4 (i.e., not finished)
             const digitsAreSpinning = isDrawing && isActive && revealedCount < 4;
-            // Fully drawn is when it's active, the animation is finished (revealedCount === 4), and it has a number assigned
             const isFullyDrawn = isActive && revealedCount === 4 && safeNumber !== "0000"; 
-            
-            // If the box is claimed, we want the number to be fully revealed (4), regardless of drawing state
             const finalRevealedCount = isActive ? (isDrawing ? (revealedCount || 0) : 4) : 4;
+
+            // Determine label and styling based on isActive AND isClaimed
+            let boxBorderClass = 'gold-border';
+            let labelTextColorClass = 'text-amber-500';
+            let statusLabel = '';
+            let statusTextColorClass = 'text-red-600'; // Default for claimed/disabled status text
+
+            if (!isActive) { // If box is not active
+                if (isClaimed) { // It's specifically claimed (manual toggle after draw)
+                    boxBorderClass = 'border-red-600 shadow-xl shadow-red-900/30';
+                    labelTextColorClass = 'text-red-400';
+                    statusLabel = 'CLAIMED';
+                    statusTextColorClass = 'text-red-500'; // Red status text for claimed
+                } else { // It's disabled/skipped (not active, not claimed)
+                    boxBorderClass = 'border-slate-600 shadow-xl shadow-slate-900/30'; // Gray border
+                    labelTextColorClass = 'text-slate-500'; // Gray label text
+                    statusLabel = 'DISABLED';
+                    statusTextColorClass = 'text-slate-500'; // Gray status text for disabled
+                }
+            } else if (isFullyDrawn) {
+                 // Active and Drawn (Unclaimed Winner)
+                 boxBorderClass = 'border-green-600 shadow-xl shadow-green-900/30';
+            }
+
 
             return (
                 <div className={`flex flex-col items-center p-4 rounded-xl transition-all duration-500 ${
                     isActive 
-                        ? 'bg-slate-900/80 gold-border scale-100 opacity-100' // Active state (Gold border)
-                        : 'bg-slate-900/50 border border-red-600 shadow-xl shadow-red-900/30 scale-95 opacity-90' // Inactive state (Red border)
-                }`}>
+                        ? 'bg-slate-900/80 scale-100 opacity-100' // Active state
+                        : 'bg-slate-900/50 scale-95 opacity-90' // Inactive state
+                } ${boxBorderClass}`}> {/* Apply dynamic border class */}
                     
-                    {/* Updated Label area to show CLAIMED status clearly */}
                     <div className="mb-3 font-bold tracking-widest uppercase text-xs sm:text-sm">
-                        <span className={isActive ? 'text-amber-500' : 'text-red-400'}>{label}</span>
-                        {!isActive && <span className="text-red-600 ml-2 font-bold">(CLAIMED)</span>}
+                        <span className={labelTextColorClass}>{label}</span>
+                        {!isActive && <span className={`ml-2 font-bold ${statusTextColorClass}`}>({statusLabel})</span>}
                     </div>
                     
                     <div className="flex justify-center bg-black p-2 rounded-lg shadow-inner border border-slate-700">
-                        {/* Always show the number if it's not the initial "0000" state */}
                         {targetDigits.map((d, i) => (
                             <FlipDigit 
                                 key={i} 
                                 target={d} 
                                 isSpinning={digitsAreSpinning}
                                 isLocked={i < finalRevealedCount}
-                                isClaimed={!isActive} // Pass claimed status to change digit color/background
+                                isClaimed={isClaimed} 
+                                isActive={isActive} // Pass isActive to FlipDigit for proper number styling
                             />
                         ))}
                     </div>
                     
                     <div className="mt-3 h-8 flex items-center gap-2">
-                         {/* DRAWN status appears only when active and finished drawing */}
                          {isFullyDrawn && (
                             <span ref={setRef} className="text-xs font-bold text-green-400 bg-green-400/10 px-2 py-1 rounded-full border border-green-400/20">
                                 DRAWN
@@ -233,15 +248,81 @@
             );
         };
 
+        // History Log Component
+        const HistoryLog = ({ drawHistory, toggleBox, boxes, isDrawing }) => {
+            // UPDATED: Format time to include seconds and milliseconds
+            const formatTime = (timestamp) => {
+                const date = new Date(timestamp);
+                const h = date.getHours().toString().padStart(2, '0');
+                const m = date.getMinutes().toString().padStart(2, '0');
+                const s = date.getSeconds().toString().padStart(2, '0');
+                const ms = date.getMilliseconds().toString().padStart(3, '0');
+                return `${h}:${m}:${s}.${ms}`;
+            };
+
+            const getBoxId = (label) => {
+                const box = boxes.find(b => b.label === label);
+                return box ? box.id : null;
+            }
+
+            return (
+                <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-4 w-full h-80 flex flex-col shadow-inner">
+                    <h3 className="text-sm text-slate-400 uppercase tracking-wider mb-3 font-sans flex items-center gap-2">
+                        <LucideIcon name="clipboard-list" className="w-4 h-4 text-sky-400" />
+                        Draw History
+                    </h3>
+                    <div className="flex-1 overflow-y-auto space-y-2">
+                        {drawHistory.length === 0 ? (
+                            <p className="text-center text-slate-500 p-4">No draws have been recorded yet.</p>
+                        ) : (
+                            drawHistory.slice().reverse().map((entry, index) => {
+                                const boxId = getBoxId(entry.prizeLabel);
+                                const isLatestEntry = index === 0;
+
+                                let statusText = entry.claimed ? "Claimed" : "Unclaimed";
+                                let statusColor = entry.claimed ? "text-red-400" : "text-green-400";
+                                let buttonClass = entry.claimed ? "bg-red-600/20 text-red-300 hover:bg-red-600/40" : "bg-green-600/20 text-green-300 hover:bg-green-600/40";
+                                let buttonIcon = entry.claimed ? "wallet-x" : "gift";
+
+                                return (
+                                    <div key={`${entry.timestamp}-${entry.prizeLabel}-${index}`} className="flex justify-between items-center bg-slate-800/70 p-3 rounded-lg border border-slate-700/50 transition-all hover:bg-slate-800">
+                                        <div className="flex flex-col text-sm">
+                                            <span className="font-mono text-lg text-amber-300">{entry.number}</span>
+                                            <span className="text-slate-400 text-xs">{entry.prizeLabel} at {formatTime(entry.timestamp)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <span className={`text-xs font-bold ${statusColor}`}>{statusText}</span>
+                                            {boxId !== null && (
+                                                <button
+                                                    onClick={() => toggleBox(boxId)}
+                                                    disabled={isDrawing}
+                                                    className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full font-semibold transition-colors ${buttonClass}`}
+                                                    title={entry.claimed ? "Mark as Unclaimed (Re-activate Prize)" : "Mark as Claimed (Disable Prize)"}
+                                                >
+                                                    <LucideIcon name={buttonIcon} className="w-3 h-3" />
+                                                    {entry.claimed ? 'Unclaim' : 'Claim'}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
         const SettingsModal = ({ isOpen, onClose, numberPool, setNumberPool, resetData, prizeCount, setPrizeCount, boxes }) => {
             const [textInput, setTextInput] = useState("");
-            const [localPrizeCount, setLocalPrizeCount] = useState(prizeCount);
+            // Initializing with the prizeCount state, allowing it to be potentially null/empty string for editing
+            const [localPrizeCount, setLocalPrizeCount] = useState(prizeCount === 0 ? '' : prizeCount); 
             const [confirmingReset, setConfirmingReset] = useState(false);
 
             useEffect(() => {
                 const text = numberPool.map(n => `${n.val}`).join('\n');
                 setTextInput(text);
-                setLocalPrizeCount(prizeCount);
+                setLocalPrizeCount(prizeCount === 0 ? '' : prizeCount);
                 if (isOpen) setConfirmingReset(false);
             }, [isOpen, prizeCount]); 
 
@@ -255,22 +336,37 @@
                 });
                 setNumberPool(newPool);
                 
-                // 2. Update Prize Count
-                setPrizeCount(localPrizeCount);
+                // 2. Update Prize Count - Validate before saving
+                let finalCount;
+                
+                // If localPrizeCount is empty string, treat it as 1 for saving
+                if (localPrizeCount === '' || isNaN(localPrizeCount)) {
+                    finalCount = 1;
+                } else {
+                    finalCount = parseInt(localPrizeCount, 10);
+                    // Clamp to the 1-10 range
+                    if (finalCount > 10) finalCount = 10;
+                    if (finalCount < 1) finalCount = 1;
+                }
+                
+                setPrizeCount(finalCount);
 
                 onClose();
             };
             
             const handlePrizeCountChange = (e) => {
-                let count = parseInt(e.target.value, 10);
-                if (isNaN(count)) {
-                    count = 1;
-                } else if (count < 1) {
-                    count = 1;
-                } else if (count > 10) {
-                    count = 10;
+                const value = e.target.value;
+                // Allow empty string or numbers only
+                if (value === '') {
+                    setLocalPrizeCount('');
+                    return;
                 }
-                setLocalPrizeCount(count);
+
+                const count = parseInt(value, 10);
+                if (!isNaN(count)) {
+                    // Set the raw number, we will clamp it during the final save
+                    setLocalPrizeCount(count);
+                }
             };
 
             const handleResetClick = () => {
@@ -311,6 +407,7 @@
                                     type="number"
                                     min="1"
                                     max="10"
+                                    // Use localPrizeCount, which can be an empty string
                                     value={localPrizeCount}
                                     onChange={handlePrizeCountChange}
                                     className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white font-mono text-lg focus:outline-none focus:border-amber-500 transition-colors"
@@ -410,11 +507,11 @@
                 for (let i = 0; i < prizeCount; i++) {
                     const existingBox = existingBoxesMap.get(i);
                     if (existingBox) {
-                        // Preserve existing box data (active status, number, etc.)
+                        // Preserve existing box data (active status, number, claimed status, etc.)
                         newBoxes.push(existingBox);
                     } else {
                         // Create new box
-                        newBoxes.push({ id: i, label: `Prize ${i + 1}`, active: true, currentNumber: "0000" });
+                        newBoxes.push({ id: i, label: `Prize ${i + 1}`, active: true, currentNumber: "0000", claimed: false });
                     }
                 }
                 
@@ -430,21 +527,36 @@
                 if (!toggledBox) return;
                 
                 const newActiveState = !toggledBox.active;
-                const newBoxes = boxes.map(b => b.id === id ? { ...b, active: newActiveState } : b);
+                
+                // If a number has been drawn, toggling active state implies toggling the claimed state.
+                const isDrawn = toggledBox.currentNumber !== "0000";
+                
+                let newClaimedState = toggledBox.claimed; // Default to current state
+                
+                if (isDrawn) {
+                    // If toggling from Active(True) to Inactive(False) AND drawn -> Mark as CLAIMED (claimed: true)
+                    if (!newActiveState) {
+                         newClaimedState = true;
+                    // If toggling from Inactive(False) to Active(True) AND drawn -> Mark as UNCLAIMED (claimed: false)
+                    } else if (newActiveState) {
+                         newClaimedState = false;
+                    }
+                }
+                
+                // Update the box state
+                const newBoxes = boxes.map(b => b.id === id ? { ...b, active: newActiveState, claimed: newClaimedState } : b);
                 setBoxes(newBoxes);
 
-                // If the box has a drawn number, update its claimed status in the history
-                if (toggledBox.currentNumber !== "0000") {
-                    const isNowClaimed = !newActiveState; // If newActiveState is false, it's claimed (true)
-                    
+                // Update history if a number was drawn
+                if (isDrawn) {
                     setDrawHistory(prevHistory => {
-                        // We must find the *last* instance of this number in history to update its claim status
+                        // Find the most recent draw entry for this number
                         const historyIndex = prevHistory.map(item => item.number).lastIndexOf(toggledBox.currentNumber);
                         
                         if (historyIndex !== -1) {
                             const newHistory = [...prevHistory];
                             // Update the claimed status of the history entry
-                            newHistory[historyIndex] = { ...newHistory[historyIndex], claimed: isNowClaimed };
+                            newHistory[historyIndex] = { ...newHistory[historyIndex], claimed: newClaimedState };
                             return newHistory;
                         }
                         return prevHistory;
@@ -454,7 +566,8 @@
 
             const resetData = () => {
                 setNumberPool(prev => prev.map(n => ({ ...n, drawn: false })));
-                setBoxes(prev => prev.map((b, i) => ({ ...b, currentNumber: "0000", active: true, id: i, label: `Prize ${i + 1}` })));
+                // Reset active and claimed state on full reset
+                setBoxes(prev => prev.map((b, i) => ({ ...b, currentNumber: "0000", active: true, claimed: false, id: i, label: `Prize ${i + 1}` })));
                 setRevealCounts({});
                 setPrizeCount(5); 
                 setDrawHistory([]); // Clear the history on full reset
@@ -464,19 +577,20 @@
                 const availableNumbers = numberPool.filter(n => !n.drawn);
                 const activeBoxes = boxes.filter(b => b.active);
 
-                // --- NEW LOGIC: Determine the actual number of prizes to draw ---
-                // Draw only for the minimum of active prizes or available numbers.
+                // --- Determine the actual number of prizes to draw ---
                 const drawCount = Math.min(activeBoxes.length, availableNumbers.length);
                 
                 if (drawCount === 0) {
-                    // No numbers or no active boxes means we can't run a draw
                     console.error("Draw cancelled: No numbers available or no boxes active for this draw.");
                     return;
                 }
                 
-                // Identify the boxes that WILL be drawn this round (the first 'drawCount' active boxes)
+                // 1. Identify the boxes that WILL be drawn this round 
                 const boxesToDraw = activeBoxes.slice(0, drawCount); 
-                // --- END NEW LOGIC ---
+                
+                // 2. Identify the boxes that are active but will be skipped/disabled due to lack of numbers
+                const boxesToSkip = activeBoxes.slice(drawCount);
+                // --- END LOGIC ---
 
                 setIsDrawing(true);
                 
@@ -485,31 +599,37 @@
                 setRevealCounts(initialCounts);
 
                 const shuffled = [...availableNumbers].sort(() => 0.5 - Math.random());
-                const winners = shuffled.slice(0, drawCount); // Take only 'drawCount' winners
+                const winners = shuffled.slice(0, drawCount); 
 
                 const newBoxes = [...boxes];
                 const newPool = [...numberPool];
-                // Use a map to store winners for delayed history update
                 const winnersMap = new Map(); 
 
-                // Use boxesToDraw instead of activeBoxes for the drawing assignment
+                // 1. Process Boxes To Draw (Winners)
                 boxesToDraw.forEach((box, idx) => {
                     const winningNumber = winners[idx].val;
                     
-                    // 1. Update Boxes (UI) - instant update for the target number
+                    // A. Update Boxes (Set number, keep active: true, keep claimed: false)
                     newBoxes[box.id] = { ...newBoxes[box.id], currentNumber: winningNumber };
                     
-                    // 2. Update Pool (Mark as drawn) - instant update
+                    // B. Update Pool (Mark as drawn)
                     const pIdx = newPool.findIndex(n => n.val === winningNumber);
                     if(pIdx !== -1) newPool[pIdx].drawn = true;
 
-                    // 3. Store winner info for delayed History update
+                    // C. Store winner info for delayed History update
                     winnersMap.set(box.id, {
                         number: winningNumber,
                         prizeLabel: box.label,
-                        claimed: false,
+                        claimed: false, // Initially unclaimed
                         timestamp: Date.now()
                     });
+                });
+                
+                // 2. Process Boxes To Skip (Auto-Disable)
+                boxesToSkip.forEach(box => {
+                    // Auto-disable prize: set active: false, and explicitly set claimed: false
+                    // It's disabled, but not claimed.
+                    newBoxes[box.id] = { ...newBoxes[box.id], active: false, claimed: false }; 
                 });
 
                 setBoxes(newBoxes);
@@ -518,7 +638,7 @@
                 let globalDelay = 500; 
                 let completedBoxes = 0;
 
-                // Use boxesToDraw instead of activeBoxes for the animation loop
+                // Animation loop only runs for boxes that received a number
                 boxesToDraw.forEach((box, boxIdx) => {
                     for (let digit = 1; digit <= 4; digit++) {
                         const digitDelay = globalDelay + (digit * 400); 
@@ -547,7 +667,7 @@
                                             if (boxElement) {
                                                 const rect = boxElement.getBoundingClientRect();
                                                 const x = rect.left + rect.width / 2;
-                                                const y = rect.top + rect.height / 2;
+                                                const y = rect.top + rect.height / 2; 
 
                                                 fireConfetti({
                                                     particleCount: 150,
@@ -565,7 +685,7 @@
                                     
                                     completedBoxes++;
 
-                                    if (completedBoxes === boxesToDraw.length) { // Check against boxesToDraw.length
+                                    if (completedBoxes === boxesToDraw.length) { 
                                          setIsDrawing(false);
                                     }
 
@@ -586,11 +706,31 @@
             else if (prizeCount >= 6 && prizeCount <= 8) gridLayoutClass = "md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4";
             else if (prizeCount >= 9) gridLayoutClass = "md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5";
 
-            // --- UI Helper variables for Warning Message ---
+            // --- UI Helper variables for Draw Button State ---
             const availableNumbersCount = numberPool.filter(n => !n.drawn).length;
             const activeBoxesCount = boxes.filter(b => b.active).length;
-            const canDraw = activeBoxesCount > 0 && availableNumbersCount > 0;
-            const isShortOnNumbers = canDraw && activeBoxesCount > availableNumbersCount;
+            const hasActiveBoxes = activeBoxesCount > 0;
+            const hasAvailableNumbers = availableNumbersCount > 0;
+            const canDraw = hasActiveBoxes && hasAvailableNumbers;
+            
+            let drawButtonText = "Start Draw";
+            let drawButtonIcon = "dice-5";
+            let drawButtonClasses = "bg-green-600 hover:bg-green-500 shadow-lg shadow-green-600/30 transform hover:scale-[1.02] active:scale-[0.98]";
+
+            if (isDrawing) {
+                drawButtonText = "Drawing...";
+                drawButtonIcon = "loader-2";
+                drawButtonClasses = "bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed";
+            } else if (!hasAvailableNumbers) {
+                drawButtonText = "No Numbers Left";
+                drawButtonIcon = "alert-triangle";
+                drawButtonClasses = "bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed";
+            } else if (!hasActiveBoxes) {
+                drawButtonText = "No Active Prizes";
+                drawButtonIcon = "gift";
+                drawButtonClasses = "bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed";
+            }
+
 
             // -- Render --
             return (
@@ -616,6 +756,7 @@
                                 label={box.label}
                                 number={box.currentNumber}
                                 isActive={box.active}
+                                isClaimed={box.claimed} // Pass the dedicated claim status
                                 isDrawing={isDrawing}
                                 revealedCount={revealCounts[box.id]}
                                 setRef={(el) => (numberBoxRefs.current[box.id] = el)} 
@@ -628,114 +769,70 @@
                             
                             <div className="flex-1 w-full">
                                 <h3 className="text-xs text-slate-400 uppercase tracking-wider mb-3 font-sans">Active Prizes</h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {boxes.map(box => (
-                                        <button
-                                            key={box.id}
-                                            onClick={() => !isDrawing && toggleBox(box.id)}
-                                            disabled={isDrawing}
-                                            className={`px-3 py-1.5 rounded text-xs font-bold transition-all border ${
-                                                box.active 
-                                                ? 'bg-amber-600/20 border-amber-600 text-amber-500 hover:bg-amber-600/30' 
-                                                : 'bg-red-600/20 border-red-600 text-red-400 hover:bg-red-600/30'
-                                            }`}
-                                        >
-                                            {box.id + 1}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="flex gap-4 items-center">
-                                <button 
-                                    onClick={() => setShowSettings(true)}
-                                    disabled={isDrawing}
-                                    className="p-3 rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors border border-slate-600"
-                                    title="Data Settings"
-                                >
-                                    <LucideIcon name="database" />
-                                </button>
-
-                                <button 
-                                    onClick={handleDraw}
-                                    disabled={isDrawing || !canDraw}
-                                    className={`
-                                        px-8 py-4 rounded-full font-bold text-xl tracking-widest uppercase shadow-lg flex items-center gap-2 transition-all transform
-                                        ${isDrawing 
-                                            ? 'bg-slate-700 text-slate-500 cursor-not-allowed scale-95' 
-                                            : 'bg-gradient-to-r from-amber-600 to-yellow-500 text-black hover:scale-105 hover:shadow-amber-500/50 hover:from-amber-500 hover:to-yellow-400'
+                                <div className="flex flex-wrap gap-2 h-20 overflow-y-auto pr-2">
+                                    {boxes.map(box => {
+                                        let buttonClasses;
+                                        if (box.active) {
+                                            buttonClasses = 'bg-amber-600/20 border-amber-600 text-amber-500 hover:bg-amber-600/30'; // Active (Gold)
+                                        } else if (box.claimed) {
+                                            buttonClasses = 'bg-red-900/30 border-red-600 text-red-500 hover:bg-red-900/40'; // Claimed (Red)
+                                        } else {
+                                            buttonClasses = 'bg-slate-800/30 border-slate-600 text-slate-500 hover:bg-slate-800/50'; // Disabled (Gray)
                                         }
-                                    `}
-                                >
-                                    {isDrawing ? (
-                                        <>
-                                            <span className="animate-spin"><LucideIcon name="loader-2" /></span> Drawing...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <LucideIcon name="play" /> Draw Numbers
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        </div>
 
-                        {/* NEW WARNING BLOCK: Shows when active prizes > available numbers */}
-                        {isShortOnNumbers && (
-                            <div className="mt-4 p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg text-yellow-300 flex items-start gap-2 text-sm">
-                                <LucideIcon name="alert-triangle" className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                                <p>
-                                    <strong>Heads Up!</strong> Only **{availableNumbersCount}** numbers remain, but **{activeBoxesCount}** prizes are active. This draw will automatically be limited to the first **{availableNumbersCount}** active prizes.
-                                </p>
-                            </div>
-                        )}
-                        
-                        <div className="mt-6 pt-4 border-t border-slate-700 flex justify-between items-center text-xs text-slate-500 font-mono">
-                            <span>Numbers Remaining: <span className="text-white">{availableNumbersCount}</span></span>
-                            <span>Total Drawn: <span className="text-white">{numberPool.filter(n => n.drawn).length}</span></span>
-                        </div>
-                        
-                        {/* DRAW HISTORY SECTION */}
-                        {drawHistory.length > 0 && (
-                            <div className="mt-6 pt-4 border-t border-slate-700">
-                                <h3 className="text-xs text-slate-400 uppercase tracking-wider mb-2 font-sans flex items-center gap-1">
-                                    <LucideIcon name="history" className="w-3 h-3 text-slate-400"/>
-                                    Draw History (Latest First)
-                                </h3>
-                                <div className="max-h-28 overflow-y-auto pr-2">
-                                    {/* History entries are displayed in reverse order for "Latest First" */}
-                                    {[...drawHistory].reverse().map((entry, index) => (
-                                        <div 
-                                            // The key now includes index to handle multiple draws of the same number in a complex scenario, though current logic prevents this.
-                                            key={`${entry.timestamp}-${entry.number}-${index}`} 
-                                            className={`flex justify-between items-center text-sm p-1 rounded transition-colors ${
-                                                entry.claimed 
-                                                ? 'text-red-300 bg-red-900/10' 
-                                                : 'text-white hover:bg-slate-800'
-                                            }`}
-                                        >
-                                            <span className="font-mono text-lg font-bold tracking-widest">
-                                                {entry.number}
-                                            </span>
-                                            <span className="text-slate-400 text-xs flex items-center gap-2">
-                                                {entry.prizeLabel}
-                                                {entry.claimed && (
-                                                    <span className="bg-red-600 text-white px-2 py-0.5 rounded-full text-xs font-bold uppercase ml-2">
-                                                        CLAIMED
-                                                    </span>
-                                                )}
-                                            </span>
-                                        </div>
-                                    ))}
+                                        return (
+                                            <button
+                                                key={box.id}
+                                                onClick={() => !isDrawing && toggleBox(box.id)}
+                                                disabled={isDrawing}
+                                                className={`px-3 py-1.5 rounded text-xs font-bold transition-all border ${buttonClasses}`}
+                                            >
+                                                {box.label} ({box.active ? 'Active' : box.claimed ? 'Claimed' : 'Disabled'})
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
-                        )}
-
+                            
+                            <div className="w-full md:w-auto flex flex-col items-center">
+                                {/* Removed the isShortOnNumbers warning message */}
+                                
+                                <div className="flex gap-4 w-full justify-center">
+                                    <button 
+                                        onClick={() => setShowSettings(true)}
+                                        disabled={isDrawing}
+                                        className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl flex items-center gap-2 transition-all shadow-md shadow-slate-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <LucideIcon name="settings" className="w-5 h-5" />
+                                        Settings
+                                    </button>
+                                    
+                                    <button
+                                        onClick={handleDraw}
+                                        disabled={isDrawing || !canDraw}
+                                        className={`px-8 py-3 text-white font-bold text-lg rounded-xl flex items-center gap-2 transition-all ${drawButtonClasses}`}
+                                    >
+                                        <LucideIcon name={drawButtonIcon} className="w-6 h-6" />
+                                        {drawButtonText}
+                                    </button>
+                                </div>
+                                <p className="text-slate-500 text-xs mt-2">Available Numbers: {availableNumbersCount}</p>
+                            </div>
+                        </div>
                     </div>
-
+                    
+                    <div className="w-full max-w-4xl mt-6">
+                        <HistoryLog 
+                            drawHistory={drawHistory} 
+                            toggleBox={toggleBox} 
+                            boxes={boxes}
+                            isDrawing={isDrawing}
+                        />
+                    </div>
+                    
                     <SettingsModal 
                         isOpen={showSettings} 
-                        onClose={() => setShowSettings(false)} 
+                        onClose={() => setShowSettings(false)}
                         numberPool={numberPool}
                         setNumberPool={setNumberPool}
                         resetData={resetData}
@@ -744,17 +841,17 @@
                         boxes={boxes}
                     />
                     
-                    {/* NEW: Version Counter */}
+                    {/* Updated: Version Counter */}
                     <div className="fixed bottom-3 right-4 text-xs text-slate-600 font-mono tracking-wider">
-                        App Version: v1.1.1
+                        App Version: v1.4.3
                     </div>
 
                 </div>
             );
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        // Render the App
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
