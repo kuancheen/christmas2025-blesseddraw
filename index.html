@@ -137,7 +137,7 @@
         };
 
         // Single Digit Flip Card (With Cycling Animation)
-        const FlipDigit = ({ target, isLocked, isSpinning, isClaimed, isActive }) => { // Added isActive prop
+        const FlipDigit = ({ target, isLocked, isSpinning, isClaimed, isActive }) => { 
             const [displayVal, setDisplayVal] = useState("0");
 
             useEffect(() => {
@@ -170,7 +170,7 @@
             }
 
             return (
-                <div className={`w-10 h-16 sm:w-12 sm:h-20 md:w-14 md:h-20 rounded-lg mx-0.5 sm:mx-1 digit-card flex items-center justify-center relative ${bgColorClass}`}>
+                <div className={`w-10 h-16 sm:w-12 sm:h-20 md:w-14 md:h-20 rounded-lg digit-card flex items-center justify-center relative ${bgColorClass}`}>
                     <span className={`text-3xl sm:text-4xl md:text-5xl font-mono font-bold ${textColorClass}`}>
                         {displayVal}
                     </span>
@@ -224,7 +224,8 @@
                         {!isActive && <span className={`ml-2 font-bold ${statusTextColorClass}`}>({statusLabel})</span>}
                     </div>
                     
-                    <div className="flex justify-center bg-black p-2 rounded-lg shadow-inner border border-slate-700">
+                    {/* FIXED: Using gap-1 to ensure digits are contained within the black box */}
+                    <div className="flex justify-center gap-1 bg-black p-2 rounded-lg shadow-inner border border-slate-700">
                         {targetDigits.map((d, i) => (
                             <FlipDigit 
                                 key={i} 
@@ -232,7 +233,7 @@
                                 isSpinning={digitsAreSpinning}
                                 isLocked={i < finalRevealedCount}
                                 isClaimed={isClaimed} 
-                                isActive={isActive} // Pass isActive to FlipDigit for proper number styling
+                                isActive={isActive} 
                             />
                         ))}
                     </div>
@@ -250,14 +251,23 @@
 
         // History Log Component
         const HistoryLog = ({ drawHistory, toggleBox, boxes, isDrawing }) => {
-            // UPDATED: Format time to include seconds and milliseconds
+            // UPDATED: Format time to include date in YYYY-MM-DD format
             const formatTime = (timestamp) => {
                 const date = new Date(timestamp);
+                
+                // Date components
+                const y = date.getFullYear();
+                const mo = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
+                const d = date.getDate().toString().padStart(2, '0');
+                
+                // Time components
                 const h = date.getHours().toString().padStart(2, '0');
                 const m = date.getMinutes().toString().padStart(2, '0');
                 const s = date.getSeconds().toString().padStart(2, '0');
                 const ms = date.getMilliseconds().toString().padStart(3, '0');
-                return `${h}:${m}:${s}.${ms}`;
+                
+                // Format: YYYY-MM-DD HH:MM:SS.mmm
+                return `${y}-${mo}-${d} ${h}:${m}:${s}.${ms}`;
             };
 
             const getBoxId = (label) => {
@@ -288,7 +298,8 @@
                                     <div key={`${entry.timestamp}-${entry.prizeLabel}-${index}`} className="flex justify-between items-center bg-slate-800/70 p-3 rounded-lg border border-slate-700/50 transition-all hover:bg-slate-800">
                                         <div className="flex flex-col text-sm">
                                             <span className="font-mono text-lg text-amber-300">{entry.number}</span>
-                                            <span className="text-slate-400 text-xs">{entry.prizeLabel} at {formatTime(entry.timestamp)}</span>
+                                            {/* Display the new full timestamp format */}
+                                            <span className="text-slate-400 text-xs font-mono">{entry.prizeLabel} at {formatTime(entry.timestamp)}</span>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <span className={`text-xs font-bold ${statusColor}`}>{statusText}</span>
@@ -616,12 +627,12 @@
                     const pIdx = newPool.findIndex(n => n.val === winningNumber);
                     if(pIdx !== -1) newPool[pIdx].drawn = true;
 
-                    // C. Store winner info for delayed History update
+                    // C. Store winner info for delayed History update (TIMESTAMP REMOVED HERE)
                     winnersMap.set(box.id, {
                         number: winningNumber,
                         prizeLabel: box.label,
                         claimed: false, // Initially unclaimed
-                        timestamp: Date.now()
+                        // Timestamp will be added when written to history
                     });
                 });
                 
@@ -654,7 +665,9 @@
                                 // --- HISTORY UPDATE GOES HERE (AFTER FINAL DIGIT LANDS) ---
                                 const historyEntry = winnersMap.get(box.id);
                                 if (historyEntry) {
-                                    setDrawHistory(prev => [...prev, historyEntry]);
+                                    // FIXED: Create history entry with a FRESH timestamp
+                                    const timedHistoryEntry = { ...historyEntry, timestamp: Date.now() }; 
+                                    setDrawHistory(prev => [...prev, timedHistoryEntry]);
                                 }
                                 // --- END HISTORY UPDATE ---
 
@@ -756,7 +769,7 @@
                                 label={box.label}
                                 number={box.currentNumber}
                                 isActive={box.active}
-                                isClaimed={box.claimed} // Pass the dedicated claim status
+                                isClaimed={box.claimed} 
                                 isDrawing={isDrawing}
                                 revealedCount={revealCounts[box.id]}
                                 setRef={(el) => (numberBoxRefs.current[box.id] = el)} 
@@ -795,7 +808,6 @@
                             </div>
                             
                             <div className="w-full md:w-auto flex flex-col items-center">
-                                {/* Removed the isShortOnNumbers warning message */}
                                 
                                 <div className="flex gap-4 w-full justify-center">
                                     <button 
@@ -843,7 +855,7 @@
                     
                     {/* Updated: Version Counter */}
                     <div className="fixed bottom-3 right-4 text-xs text-slate-600 font-mono tracking-wider">
-                        App Version: v1.4.3
+                        App Version: v1.4.6
                     </div>
 
                 </div>
