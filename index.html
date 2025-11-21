@@ -187,7 +187,9 @@
             const paddedNumber = safeNumber.toString().padStart(4, '0');
             const targetDigits = paddedNumber.split('');
 
+            // Box spins if it's active, the draw is running, AND the revealedCount is less than 4 (i.e., not finished)
             const digitsAreSpinning = isDrawing && isActive && revealedCount < 4;
+            // Fully drawn is when it's active, the animation is finished (revealedCount === 4), and it has a number assigned
             const isFullyDrawn = isActive && revealedCount === 4 && safeNumber !== "0000"; 
             
             // If the box is claimed, we want the number to be fully revealed (4), regardless of drawing state
@@ -459,33 +461,39 @@
             };
 
             const handleDraw = () => {
-                const activeBoxes = boxes.filter(b => b.active);
-                if (activeBoxes.length === 0) { 
-                    console.error("Please activate at least one box."); 
-                    return; 
-                }
-
                 const availableNumbers = numberPool.filter(n => !n.drawn);
-                if (availableNumbers.length < activeBoxes.length) {
-                    console.error(`Not enough numbers! Need ${activeBoxes.length}, have ${availableNumbers.length}. Please load more numbers.`);
+                const activeBoxes = boxes.filter(b => b.active);
+
+                // --- NEW LOGIC: Determine the actual number of prizes to draw ---
+                // Draw only for the minimum of active prizes or available numbers.
+                const drawCount = Math.min(activeBoxes.length, availableNumbers.length);
+                
+                if (drawCount === 0) {
+                    // No numbers or no active boxes means we can't run a draw
+                    console.error("Draw cancelled: No numbers available or no boxes active for this draw.");
                     return;
                 }
+                
+                // Identify the boxes that WILL be drawn this round (the first 'drawCount' active boxes)
+                const boxesToDraw = activeBoxes.slice(0, drawCount); 
+                // --- END NEW LOGIC ---
 
                 setIsDrawing(true);
                 
                 const initialCounts = {};
-                activeBoxes.forEach(b => initialCounts[b.id] = 0);
+                boxesToDraw.forEach(b => initialCounts[b.id] = 0);
                 setRevealCounts(initialCounts);
 
                 const shuffled = [...availableNumbers].sort(() => 0.5 - Math.random());
-                const winners = shuffled.slice(0, activeBoxes.length);
+                const winners = shuffled.slice(0, drawCount); // Take only 'drawCount' winners
 
                 const newBoxes = [...boxes];
                 const newPool = [...numberPool];
                 // Use a map to store winners for delayed history update
                 const winnersMap = new Map(); 
 
-                activeBoxes.forEach((box, idx) => {
+                // Use boxesToDraw instead of activeBoxes for the drawing assignment
+                boxesToDraw.forEach((box, idx) => {
                     const winningNumber = winners[idx].val;
                     
                     // 1. Update Boxes (UI) - instant update for the target number
@@ -506,12 +514,12 @@
 
                 setBoxes(newBoxes);
                 setNumberPool(newPool);
-                // History update is intentionally skipped here and done inside the timeout below
-
+                
                 let globalDelay = 500; 
                 let completedBoxes = 0;
 
-                activeBoxes.forEach((box, boxIdx) => {
+                // Use boxesToDraw instead of activeBoxes for the animation loop
+                boxesToDraw.forEach((box, boxIdx) => {
                     for (let digit = 1; digit <= 4; digit++) {
                         const digitDelay = globalDelay + (digit * 400); 
                         
@@ -557,7 +565,7 @@
                                     
                                     completedBoxes++;
 
-                                    if (completedBoxes === activeBoxes.length) {
+                                    if (completedBoxes === boxesToDraw.length) { // Check against boxesToDraw.length
                                          setIsDrawing(false);
                                     }
 
@@ -578,6 +586,11 @@
             else if (prizeCount >= 6 && prizeCount <= 8) gridLayoutClass = "md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4";
             else if (prizeCount >= 9) gridLayoutClass = "md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5";
 
+            // --- UI Helper variables for Warning Message ---
+            const availableNumbersCount = numberPool.filter(n => !n.drawn).length;
+            const activeBoxesCount = boxes.filter(b => b.active).length;
+            const canDraw = activeBoxesCount > 0 && availableNumbersCount > 0;
+            const isShortOnNumbers = canDraw && activeBoxesCount > availableNumbersCount;
 
             // -- Render --
             return (
@@ -645,7 +658,7 @@
 
                                 <button 
                                     onClick={handleDraw}
-                                    disabled={isDrawing}
+                                    disabled={isDrawing || !canDraw}
                                     className={`
                                         px-8 py-4 rounded-full font-bold text-xl tracking-widest uppercase shadow-lg flex items-center gap-2 transition-all transform
                                         ${isDrawing 
@@ -666,9 +679,19 @@
                                 </button>
                             </div>
                         </div>
+
+                        {/* NEW WARNING BLOCK: Shows when active prizes > available numbers */}
+                        {isShortOnNumbers && (
+                            <div className="mt-4 p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg text-yellow-300 flex items-start gap-2 text-sm">
+                                <LucideIcon name="alert-triangle" className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                <p>
+                                    <strong>Heads Up!</strong> Only **{availableNumbersCount}** numbers remain, but **{activeBoxesCount}** prizes are active. This draw will automatically be limited to the first **{availableNumbersCount}** active prizes.
+                                </p>
+                            </div>
+                        )}
                         
                         <div className="mt-6 pt-4 border-t border-slate-700 flex justify-between items-center text-xs text-slate-500 font-mono">
-                            <span>Numbers Remaining: <span className="text-white">{numberPool.filter(n => !n.drawn).length}</span></span>
+                            <span>Numbers Remaining: <span className="text-white">{availableNumbersCount}</span></span>
                             <span>Total Drawn: <span className="text-white">{numberPool.filter(n => n.drawn).length}</span></span>
                         </div>
                         
@@ -720,6 +743,11 @@
                         setPrizeCount={setPrizeCount}
                         boxes={boxes}
                     />
+                    
+                    {/* NEW: Version Counter */}
+                    <div className="fixed bottom-3 right-4 text-xs text-slate-600 font-mono tracking-wider">
+                        App Version: v1.1.1
+                    </div>
 
                 </div>
             );
