@@ -1,0 +1,21 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [v1.5.0] - 2025-11-26
+
+### Added
+-   **New Brand Theme**: Implemented "Where Wisdom Finds Peace" event branding.
+    -   **Royal Blue Background**: Updated main background to deep blue (`#1a3ba0`) with starburst gradient.
+    -   **Gold Accents**: Added gold borders, text gradients, and highlights (`#fbbf24`).
+-   **Typography**:
+    -   Added **'Kaushan Script'** for the main title to match the event visual.
+    -   Added **'Poppins'** for body text and UI elements for a modern, clean look.
+-   **UI Enhancements**:
+    -   Updated "Start Draw" button to a Gold/Amber gradient.
+    -   Refined "Glassmorphism" effects on panels to blend with the blue theme.
+    -   Updated "Number Box" and "Flip Digit" styles to align with the new color palette.
+
+### Changed
+-   Updated `index.html` to include new Google Fonts (`Poppins`, `Kaushan Script`).
+-   Refactored CSS variables and Tailwind classes to support the new theme.
