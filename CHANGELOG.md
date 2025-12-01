@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.6.0] - 2025-12-01
+
+### Added
+-   **Sound Effects**: Added a drum roll sound effect that plays sequentially for each prize draw.
+    -   Sound plays from 4.5s to 7s of the clip for a punchy effect.
+    -   Supports concurrent playback for multiple prizes without cutting off.
+
 ## [v1.5.0] - 2025-11-26
 
 ### Added

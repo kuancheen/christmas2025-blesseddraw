@@ -514,6 +514,9 @@
             const [isDrawing, setIsDrawing] = useState(false);
             const [showSettings, setShowSettings] = useState(false);
 
+            // Audio Ref for Drum Roll
+            const audioRef = useRef(new Audio('https://www.myinstants.com/media/sounds/drum-roll-sound-effect.mp3'));
+
             // Prize Count State
             const [prizeCount, setPrizeCount] = useState(() => safeParse('blessed_prize_count', 5));
 
@@ -638,6 +641,23 @@
 
                 setIsDrawing(true);
 
+                // Helper to play sound
+                const playDrumRoll = () => {
+                    if (audioRef.current) {
+                        // Clone the node to allow overlapping sounds and independent control
+                        const sound = audioRef.current.cloneNode();
+                        sound.currentTime = 4.5; // Start at 4.5 seconds
+                        sound.play().catch(e => console.error("Audio play failed:", e));
+
+                        // Stop after 2.5 seconds (at 0:07)
+                        setTimeout(() => {
+                            if (sound) {
+                                sound.pause();
+                            }
+                        }, 2500);
+                    }
+                };
+
                 const initialCounts = {};
                 boxesToDraw.forEach(b => initialCounts[b.id] = 0);
                 setRevealCounts(initialCounts);
@@ -684,6 +704,11 @@
 
                 // Animation loop only runs for boxes that received a number
                 boxesToDraw.forEach((box, boxIdx) => {
+                    // Schedule sound for this box
+                    setTimeout(() => {
+                        playDrumRoll();
+                    }, globalDelay);
+
                     for (let digit = 1; digit <= 4; digit++) {
                         const digitDelay = globalDelay + (digit * 400);
 
