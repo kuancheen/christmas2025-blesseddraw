@@ -1,4 +1,4 @@
-# Blessed Draw App (v1.6.0)
+# Blessed Draw App (v1.7.0)
 
 This is a self-contained web application designed to facilitate real-time, non-repeating number draws for jackpot prizes. It runs entirely in your browser using local storage for persistence.
 

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.7.0] - 2025-12-01
+
+### Changed
+-   **Responsive Layout**: Updated prize box layout to use Flexbox with balanced row distribution.
+    -   5 prizes now fit in a single row.
+    -   6 prizes split into two rows of 3 (3+3).
+    -   Overflow rows are centered for better visual balance.
+
 ## [v1.6.0] - 2025-12-01
 
 ### Added
