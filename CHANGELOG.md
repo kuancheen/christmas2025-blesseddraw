@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.7.1] - 2025-12-02
+
+### Fixed
+-   **Duplicate Handling**: Added logic to automatically filter out duplicate numbers when saving the "Number List" in settings.
+
 ## [v1.7.0] - 2025-12-01
 
 ### Changed

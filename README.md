@@ -1,4 +1,4 @@
-# Blessed Draw App (v1.7.0)
+# Blessed Draw App (v1.7.1)
 
 This is a self-contained web application designed to facilitate real-time, non-repeating number draws for jackpot prizes. It runs entirely in your browser using local storage for persistence.
 
@@ -13,7 +13,7 @@ The app uses your browser's local storage for data persistence, simulating a con
 3.  **Import Numbers:**
     * Open your source spreadsheet (e.g., Google Sheet).
     * Copy the column of unique numbers you want to draw from.
-    * Paste the numbers (one per line) into the large text area under "Number List."
+    * Paste the numbers (one per line) into the large text area under "Number List." (Duplicates are automatically removed).
 4.  Click **Save Changes**.
 
 > **Note:** The app remembers your list and which numbers have been drawn even if you close the browser, as long as you don't clear your browser cache.

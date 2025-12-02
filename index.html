@@ -373,7 +373,11 @@
             const handleSave = () => {
                 // 1. Update Number Pool
                 const lines = textInput.split('\n').map(s => s.trim()).filter(s => s !== "");
-                const newPool = lines.map(val => {
+
+                // Filter out duplicates using a Set
+                const uniqueLines = [...new Set(lines)];
+
+                const newPool = uniqueLines.map(val => {
                     const existing = numberPool.find(n => n.val === val);
                     const paddedVal = val.padStart(4, '0');
                     return { val: paddedVal, drawn: existing ? existing.drawn : false };
@@ -919,7 +923,7 @@
 
                     {/* Updated: Version Counter */}
                     <div className="fixed bottom-3 right-4 text-xs text-slate-600 font-mono tracking-wider">
-                        App Version: v1.7.0
+                        App Version: v1.7.1
                     </div>
 
                 </div>
