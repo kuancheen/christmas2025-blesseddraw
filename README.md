@@ -1,4 +1,4 @@
-# Blessed Draw App (v1.7.1)
+# Blessed Draw App (v1.7.2)
 
 This is a self-contained web application designed to facilitate real-time, non-repeating number draws for jackpot prizes. It runs entirely in your browser using local storage for persistence.
 
@@ -45,3 +45,8 @@ Once a number is drawn, you manage its claim status in the **Draw History** sect
 -   A drum roll sound plays automatically when you start a draw.
 -   The sound is synchronized with each prize box's animation.
 -   **Note**: Ensure your device volume is on. Browsers may block audio if you haven't interacted with the page (clicking "Start Draw" counts as interaction).
+
+## 6. License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Copyright (c) 2025 Kuan Cheen.
+

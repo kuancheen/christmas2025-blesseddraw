@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.7.2] - 2025-12-03
+
+### Added
+-   **License**: Added MIT License (Copyright (c) 2025 Kuan Cheen).
+-   **Copyright Notice**: Added copyright header to `index.html` and `README.md`.
+
 ## [v1.7.1] - 2025-12-02
 
 ### Fixed
