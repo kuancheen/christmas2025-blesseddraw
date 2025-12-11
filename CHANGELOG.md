@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.7.4] - 2025-12-11
+
+### Added
+-   **Documentation**: Added status badges (Version, License) and a direct "Live Demo" link to the `README.md`.
+
+## [v1.7.3] - 2025-12-11
+
+### Added
+-   **Favicon**: Added a "Gift Box" (🎁) favicon to the application using an SVG data URI for instant visibility.
+
 ## [v1.7.2] - 2025-12-03
 
 ### Added

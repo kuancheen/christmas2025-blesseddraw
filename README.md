@@ -1,4 +1,9 @@
-# Blessed Draw App (v1.7.2)
+# Blessed Draw App (v1.7.4)
+![Version](https://img.shields.io/badge/version-v1.7.4-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+[![Live Demo](https://img.shields.io/badge/demo-online-orange)](https://kuancheen.github.io/christmas2025-blesseddraw/)
+
+🔗 **Live Demo**: [Click Here to Run App](https://kuancheen.github.io/christmas2025-blesseddraw/)
 
 This is a self-contained web application designed to facilitate real-time, non-repeating number draws for jackpot prizes. It runs entirely in your browser using local storage for persistence.
 
