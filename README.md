@@ -1,5 +1,5 @@
-# Blessed Draw App (v1.7.4)
-![Version](https://img.shields.io/badge/version-v1.7.4-blue)
+# Blessed Draw App (v1.7.5)
+![Version](https://img.shields.io/badge/version-v1.7.5-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 [![Live Demo](https://img.shields.io/badge/demo-online-orange)](https://kuancheen.github.io/christmas2025-blesseddraw/)
 

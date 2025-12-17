@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.7.5] - 2025-12-17
+
+### Changed
+-   **Branding**: Refined visual identity to match event theme.
+    -   **Title**: Changed main "Blessed Draw" title to **White** (`text-white`) with drop shadow for better contrast.
+    -   **Background**: Updated to a vibrant **Royal Blue** (`#2b50c8`) to align with official event assets.
+
 ## [v1.7.4] - 2025-12-11
 
 ### Added
