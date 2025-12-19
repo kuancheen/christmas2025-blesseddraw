@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.7.6] - 2025-12-19
+
+### Added
+- **Compliance Audit**: Standardized project structure and documentation.
+    - Added missing badges to `README.md` (SemVer, Status).
+    - Standardized `index.html` comment header.
+    - Added `.gitignore`.
+    - Added `.github/workflows/static.yml` for automated GitHub Pages deployment.
+    - Renamed and updated `version-update.md` workflow.
+
 ## [v1.7.5] - 2025-12-17
 
 ### Changed
