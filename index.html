@@ -4,7 +4,7 @@
   Description: A self-contained web application for real-time, non-repeating number draws.
   Author: Kuan Cheen
   Copyright (c) 2025
-  Version: v1.8.0
+  Version: v1.9.0
   License: MIT
 -->
 <html lang="en">
@@ -221,7 +221,7 @@
         };
 
         // A Group of 4 Digits (One Jackpot Box)
-        const NumberBox = ({ number, isActive, label, revealedCount, isDrawing, setRef, isClaimed }) => {
+        const NumberBox = ({ number, isActive, label, revealedCount, isDrawing, setRef, isClaimed, onClick }) => {
             const safeNumber = (number !== undefined && number !== null) ? number : "0000";
             const paddedNumber = safeNumber.toString().padStart(4, '0');
             const targetDigits = paddedNumber.split('');
@@ -255,10 +255,12 @@
 
 
             return (
-                <div className={`flex flex-col items-center p-4 rounded-xl transition-all duration-500 w-full ${isActive
-                    ? 'bg-blue-950/40 backdrop-blur-sm scale-100 opacity-100' // Active state
-                    : 'bg-slate-900/30 scale-95 opacity-80' // Inactive state
-                    } ${boxBorderClass}`}> {/* Apply dynamic border class */}
+                <div
+                    onClick={onClick}
+                    className={`flex flex-col items-center p-4 rounded-xl transition-all duration-500 w-full group cursor-pointer hover:ring-2 hover:ring-amber-500/50 ${isActive
+                        ? 'bg-blue-950/40 backdrop-blur-sm scale-100 opacity-100' // Active state
+                        : 'bg-slate-900/30 scale-95 opacity-80' // Inactive state
+                        } ${boxBorderClass}`}> {/* Apply dynamic border class */}
 
                     <div className="mb-3 font-bold tracking-widest uppercase text-xs sm:text-sm">
                         <span className={labelTextColorClass}>{label}</span>
@@ -311,12 +313,71 @@
                 return `${y}-${mo}-${d} ${h}:${m}:${s}.${ms}`;
             };
 
+            const handleCopy = () => {
+                if (drawHistory.length === 0) return;
+                const text = drawHistory.slice().reverse().map(entry =>
+                    `${entry.number} - ${entry.prizeLabel} (${formatTime(entry.timestamp)})`
+                ).join('\n');
+
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('History copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            };
+
+            const handleDownloadCSV = () => {
+                if (drawHistory.length === 0) return;
+
+                // CSV Header
+                let csvContent = "data:text/csv;charset=utf-8,Number,Prize,Date Time,Status\n";
+
+                // CSV Rows
+                drawHistory.slice().reverse().forEach(entry => {
+                    const row = [
+                        entry.number,
+                        `"${entry.prizeLabel}"`,
+                        `"${formatTime(entry.timestamp)}"`,
+                        entry.claimed ? "Claimed" : "Unclaimed"
+                    ].join(",");
+                    csvContent += row + "\n";
+                });
+
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `blessed_draw_history_${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
             return (
                 <div className="bg-blue-950/40 border border-blue-900/50 rounded-xl p-4 w-full h-80 flex flex-col shadow-inner backdrop-blur-sm">
-                    <h3 className="text-sm text-slate-400 uppercase tracking-wider mb-3 font-sans flex items-center gap-2">
-                        <LucideIcon name="clipboard-list" className="w-4 h-4 text-sky-400" />
-                        Draw History
-                    </h3>
+                    <div className="flex justify-between items-center mb-3">
+                        <h3 className="text-sm text-slate-400 uppercase tracking-wider font-sans flex items-center gap-2">
+                            <LucideIcon name="clipboard-list" className="w-4 h-4 text-sky-400" />
+                            Draw History
+                        </h3>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleCopy}
+                                disabled={drawHistory.length === 0}
+                                title="Copy to Clipboard"
+                                className="p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 hover:text-sky-400 hover:bg-slate-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <LucideIcon name="copy" className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={handleDownloadCSV}
+                                disabled={drawHistory.length === 0}
+                                title="Download as CSV"
+                                className="p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 hover:text-emerald-400 hover:bg-slate-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <LucideIcon name="download" className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
                     <div className="flex-1 overflow-y-auto space-y-2">
                         {drawHistory.length === 0 ? (
                             <p className="text-center text-slate-500 p-4">No draws have been recorded yet.</p>
@@ -831,7 +892,11 @@
                     <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none mix-blend-overlay"></div>
                     <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-blue-500/10 to-transparent -z-10"></div>
 
-                    <div className="text-center mb-10 relative z-10">
+                    <div
+                        onClick={() => !isDrawing && canDraw && handleDraw()}
+                        className={`text-center mb-10 relative z-10 transition-all duration-300 transform ${canDraw && !isDrawing ? 'cursor-pointer hover:scale-105 active:scale-95' : ''}`}
+                        title={canDraw && !isDrawing ? "Click to Start Draw" : ""}
+                    >
                         <div className="flex flex-col items-center justify-center gap-2 mb-2">
                             <h1 className="text-6xl md:text-8xl text-white drop-shadow-lg font-script tracking-wide transform -rotate-2">Blessed Draw</h1>
                             <div className="h-1 w-32 bg-gradient-to-r from-transparent via-white to-transparent opacity-50"></div>
@@ -851,6 +916,7 @@
                                     revealedCount={revealCounts[box.id] || 0}
                                     isDrawing={isDrawing}
                                     setRef={el => numberBoxRefs.current[box.id] = el}
+                                    onClick={() => !isDrawing && toggleBox(box.id)}
                                 />
                             </div>
                         ))}
@@ -934,7 +1000,7 @@
 
                     {/* Updated: Version Counter */}
                     <div className="fixed bottom-3 right-4 text-xs text-slate-600 font-mono tracking-wider">
-                        App Version: v1.8.0
+                        App Version: v1.9.0
                     </div>
 
                 </div>

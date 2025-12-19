@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.9.0] - 2024-12-19
+
+### Added
+- **Multi-Trigger Interaction**:
+    - Prize boxes are now clickable to toggle status (Active/Disabled/Claimed).
+    - The "Blessed Draw" title header is now clickable to trigger the draw.
+- **Export Features**:
+    - Added "Copy to Clipboard" button to Draw History.
+    - Added "Download as CSV" button to Draw History.
+
 ## [v1.8.0] - 2024-12-19
 
 ### Changed
