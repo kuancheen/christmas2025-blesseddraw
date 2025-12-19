@@ -4,7 +4,7 @@
   Description: A self-contained web application for real-time, non-repeating number draws.
   Author: Kuan Cheen
   Copyright (c) 2025
-  Version: v1.7.6
+  Version: v1.8.0
   License: MIT
 -->
 <html lang="en">
@@ -403,8 +403,8 @@
                     finalCount = 1;
                 } else {
                     finalCount = parseInt(localPrizeCount, 10);
-                    // Clamp to the 1-10 range
-                    if (finalCount > 10) finalCount = 10;
+                    // Clamp to the 1-20 range
+                    if (finalCount > 20) finalCount = 20;
                     if (finalCount < 1) finalCount = 1;
                 }
 
@@ -460,18 +460,18 @@
                             <div className="bg-slate-800/50 border border-slate-700 p-4 rounded-lg">
                                 <label className="block text-slate-400 text-sm mb-2 flex items-center gap-2">
                                     <LucideIcon name="gift" className="w-4 h-4 text-amber-400" />
-                                    Number of Prizes (1-10)
+                                    Number of Prizes (1-20)
                                 </label>
                                 <input
                                     type="number"
                                     min="1"
-                                    max="10"
+                                    max="20"
                                     // Use localPrizeCount, which can be an empty string
                                     value={localPrizeCount}
                                     onChange={handlePrizeCountChange}
                                     className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white font-mono text-lg focus:outline-none focus:border-amber-500 transition-colors"
                                 />
-                                <p className="text-xs text-slate-500 mt-1">Current Boxes: {boxes.length}. Set between 1 and 10.</p>
+                                <p className="text-xs text-slate-500 mt-1">Current Boxes: {boxes.length}. Set between 1 and 20.</p>
                             </div>
 
                             {/* NUMBER POOL SETTING */}
@@ -795,7 +795,7 @@
             else if (prizeCount === 6) itemClass += " md:w-[30%]"; // 3 per row (3+3)
             else if (prizeCount === 7 || prizeCount === 8) itemClass += " md:w-[22%]"; // 4 per row (7->4+3, 8->4+4)
             else if (prizeCount === 9) itemClass += " md:w-[30%]"; // 3 per row (3+3+3)
-            else if (prizeCount === 10) itemClass += " md:w-[18%]"; // 5 per row (5+5)
+            else if (prizeCount >= 10) itemClass += " md:w-[18%]"; // 5 per row (10->5+5, 20->5+5+5+5)
 
             // --- UI Helper variables for Draw Button State ---
             const availableNumbersCount = numberPool.filter(n => !n.drawn).length;
@@ -934,7 +934,7 @@
 
                     {/* Updated: Version Counter */}
                     <div className="fixed bottom-3 right-4 text-xs text-slate-600 font-mono tracking-wider">
-                        App Version: v1.7.6
+                        App Version: v1.8.0
                     </div>
 
                 </div>

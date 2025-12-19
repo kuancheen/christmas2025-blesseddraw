@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.8.0] - 2024-12-19
+
+### Changed
+- **Prize Limit**: Increased the maximum number of simultaneous prize boxes from 10 to **20**.
+- **UI/Layout**: Optimized the layout for large prize counts, defaulting to 5 items per row for better readability.
+
 ## [v1.7.6] - 2025-12-19
 
 ### Added

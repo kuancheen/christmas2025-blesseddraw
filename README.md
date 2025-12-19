@@ -1,5 +1,5 @@
-# Blessed Draw App (v1.7.6)
-![Version](https://img.shields.io/badge/version-v1.7.6-blue)
+# Blessed Draw App (v1.8.0)
+![Version](https://img.shields.io/badge/version-v1.8.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Semantic Versioning](https://img.shields.io/badge/semver-2.0.0-blue)
 ![Status](https://img.shields.io/badge/status-active-success)
@@ -16,7 +16,7 @@ Simply open the `index.html` file in any modern web browser (Chrome, Edge, Safar
 The app uses your browser's local storage for data persistence, simulating a connected database.
 
 1.  **Access Settings:** Click the **Settings** button (⚙️) next to "Start Draw."
-2.  **Prize Count:** Adjust the number of active prize boxes (between `1` and `10`) in the "Number of Prizes" field.
+2.  **Prize Count:** Adjust the number of active prize boxes (between `1` and `20`) in the "Number of Prizes" field.
 3.  **Import Numbers:**
     * Open your source spreadsheet (e.g., Google Sheet).
     * Copy the column of unique numbers you want to draw from.
