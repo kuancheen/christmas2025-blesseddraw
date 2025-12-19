@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.9.1] - 2024-12-19
+
+### Changed
+- **History Copied Notification**: Replaced the browser `alert()` with a custom, theme-consistent modal that supports closing via button, overlay click, or 'Esc' key.
+
 ## [v1.9.0] - 2024-12-19
 
 ### Added

@@ -1,5 +1,5 @@
-# Blessed Draw App (v1.9.0)
-![Version](https://img.shields.io/badge/version-v1.9.0-blue)
+# Blessed Draw App (v1.9.1)
+![Version](https://img.shields.io/badge/version-v1.9.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Semantic Versioning](https://img.shields.io/badge/semver-2.0.0-blue)
 ![Status](https://img.shields.io/badge/status-active-success)
