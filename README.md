@@ -1,8 +1,9 @@
-# Blessed Draw App (v1.9.1)
-![Version](https://img.shields.io/badge/version-v1.9.1-blue)
+# Blessed Draw App (v2.0.1)
+![Version](https://img.shields.io/badge/version-v2.0.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Semantic Versioning](https://img.shields.io/badge/semver-2.0.0-blue)
 ![Status](https://img.shields.io/badge/status-active-success)
+![Hits](https://hits.sh/github.com/kuancheen/christmas2025-blesseddraw.svg?view=today-total&style=flat&label=👁️%20Views&extraCount=0&color=6366f1)
 [![Live Demo](https://img.shields.io/badge/demo-online-orange)](https://kuancheen.github.io/christmas2025-blesseddraw/)
 
 🔗 **Live Demo**: [Click Here to Run App](https://kuancheen.github.io/christmas2025-blesseddraw/)
@@ -53,7 +54,14 @@ Once a number is drawn, you manage its claim status in the **Draw History** sect
 -   The sound is synchronized with each prize box's animation.
 -   **Note**: Ensure your device volume is on. Browsers may block audio if you haven't interacted with the page (clicking "Start Draw" counts as interaction).
 
-## 6. License
+## 6. Key Features
+- **Interactive Triggers**: Both the main title and individual prize boxes are interactive. Click the title to start a draw, or click a prize box to toggle its status.
+- **Data Export**: Easily copy the entire draw history to your clipboard or download it as a CSV file for record-keeping.
+- **Increased Capacity**: Supports up to 20 simultaneous jackpot prizes for larger events.
+- **Theme-Consistent UI**: Enhanced with custom notification modals and a glassmorphism design that scales beautifully.
+- **Cache Busting**: Integrated versioning for internal assets ensure you always have the latest features and bug fixes.
+
+## 7. License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 Copyright (c) 2025 Kuan Cheen.
 

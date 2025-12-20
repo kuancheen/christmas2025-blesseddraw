@@ -2,12 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v1.9.1] - 2024-12-19
+## [v2.0.1] - 2025-12-20
+### Changed
+- **Footer Refinement**: Standardized `md-viewer` links for README and CHANGELOG.
+- **Branding**: Updated Hits.sh badge styles (`flat-square` in app, `flat` in README) and refined copyright link.
+- **Documentation**: Synchronized `README.md` with all the latest features (Interactive Title, Export Options, 20 Prize Limit).
 
+## [v2.0.0] - 2025-12-19
+### Added
+- Externalized CSS into `app.css`.
+- Externalized JavaScript into `app.js`.
+- Implemented cache bursting for internal assets using versioned query parameters (`?v=2.0.0`).
+- Updated `version-update.md` workflow to support internal asset versioning.
+- **Compliance Audit**: Standardized Hits.sh view counter, footer link formats, and branding via the `/new-project-init` workflow update.
+- **Documentation**: Added `md-viewer` links (README, CHANGELOG), Copyright, and Hits.sh badge to the application footer and `README.md`.
+
+## [v1.9.1] - 2025-12-19
 ### Changed
 - **History Copied Notification**: Replaced the browser `alert()` with a custom, theme-consistent modal that supports closing via button, overlay click, or 'Esc' key.
 
-## [v1.9.0] - 2024-12-19
+## [v1.9.0] - 2025-12-19
 
 ### Added
 - **Multi-Trigger Interaction**:

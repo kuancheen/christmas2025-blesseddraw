@@ -1,0 +1,70 @@
+        body {
+            background-color: #2b50c8;
+            /* Vibrant Royal Blue */
+            background: radial-gradient(circle at 50% 30%, #3b60d8 0%, #2b50c8 40%, #1a3ba0 100%);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Digit Card Styling */
+        .digit-card {
+            background: linear-gradient(to bottom, #1e3a8a 50%, #172554 50%);
+            /* Blue-ish slate */
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .digit-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .gold-text {
+            color: #fbbf24;
+            /* Fallback */
+            background: linear-gradient(to bottom, #fef3c7 0%, #fbbf24 40%, #d97706 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .gold-border {
+            border: 2px solid #fbbf24;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        /* Custom Font Classes */
+        .font-script {
+            font-family: 'Kaushan Script', cursive;
+        }

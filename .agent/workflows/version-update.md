@@ -3,10 +3,14 @@ description: Update project versioning (index.html, CHANGELOG, README)
 ---
 
 1.  **Analyze Changes**: Determine if the changes constitute a Major (breaking), Minor (new feature), or Patch (bug fix) update.
-2.  **Update index.html**:
-    -   Find the version string in the comment header (e.g., `Version: v1.7.6`).
-    -   Find the version string in the footer (e.g., `App Version: v1.7.6`).
-    -   Increment them according to the analysis.
+2.  **Update Assets & Cache Bursting**:
+    -   **index.html**:
+        -   Update the version string in the comment header (e.g., `Version: v2.0.0`).
+        -   Update the version query parameters for internal assets:
+            -   `<link rel="stylesheet" href="app.css?v=2.0.0">`
+            -   `<script type="text/babel" src="app.js?v=2.0.0"></script>`
+    -   **app.js**:
+        -   Update the version string in the footer React component (e.g., `App Version: v2.0.0`).
 3.  **Update CHANGELOG.md**:
     -   Add a new section at the top for the new version.
     -   Format: `## [vX.Y.Z] - YYYY-MM-DD`
