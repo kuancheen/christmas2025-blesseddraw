@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.1.1] - 2025-12-20
+### Changed
+- **Footer Layout Refinement**: Aligned version link, documentation links, and hits badge into a single, cohesive row for a more modern and compact feel.
+- **Styling**: Adjusted footer padding and gap spacing for better horizontal distribution.
+
 ## [v2.1.0] - 2025-12-20
 ### Changed
 - **Footer Structural Refactor**: Moved the floating version/badge div to a proper, centered `<footer>` element at the end of the page flow.

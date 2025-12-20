@@ -933,10 +933,10 @@ const App = () => {
 
             </div>
 
-            {/* v2.1.0 Refactor: Standardized Footer at the end of the page flow */}
-            <footer className="w-full mt-12 bg-slate-900/40 backdrop-blur-md border-t border-white/5 py-8 flex flex-col items-center justify-center gap-3 text-xs text-slate-500 font-mono tracking-wider">
+            {/* v2.1.1 Refactor: Standardized Footer - Single Row Layout */}
+            <footer className="w-full mt-12 bg-slate-900/40 backdrop-blur-md border-t border-white/5 py-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-xs text-slate-500 font-mono tracking-wider">
                 <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4">
-                    <span className="font-bold text-slate-400">v2.1.0</span>
+                    <span className="font-bold text-slate-400">v2.1.1</span>
                     <span className="hidden sm:inline text-slate-700">|</span>
                     <a href="https://kuancheen.github.io/md-viewer/?https://github.com/kuancheen/christmas2025-blesseddraw/blob/main/README.md" target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors py-1">README</a>
                     <span className="hidden sm:inline text-slate-700">|</span>
@@ -944,7 +944,7 @@ const App = () => {
                     <span className="hidden sm:inline text-slate-700">|</span>
                     <a href="https://github.com/kuancheen" target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors py-1">&copy; 2025 Kuan Cheen</a>
                 </div>
-                <div className="mt-1">
+                <div className="flex items-center">
                     <img src="https://hits.sh/github.com/kuancheen/christmas2025-blesseddraw.svg?view=today-total&style=flat-square&label=👁️%20Views&extraCount=0&color=6366f1" alt="Hits Badge" className="h-6 opacity-80 hover:opacity-100 transition-opacity" />
                 </div>
             </footer>
