@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.1.2] - 2025-12-20
+### Changed
+- **Documentation Sync**: Synchronized `README.md` with all features and functionality changes documented in previous versions (Interactive Triggers, Export Features, Royal Blue & Gold Branding).
+
 ## [v2.1.1] - 2025-12-20
 ### Changed
 - **Footer Layout Refinement**: Aligned version link, documentation links, and hits badge into a single, cohesive row for a more modern and compact feel.

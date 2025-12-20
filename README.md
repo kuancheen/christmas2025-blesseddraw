@@ -1,5 +1,5 @@
-# Blessed Draw App (v2.1.1)
-![Version](https://img.shields.io/badge/version-v2.1.1-blue)
+# Blessed Draw App (v2.1.2)
+![Version](https://img.shields.io/badge/version-v2.1.2-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Semantic Versioning](https://img.shields.io/badge/semver-2.0.0-blue)
 ![Status](https://img.shields.io/badge/status-active-success)
@@ -8,7 +8,7 @@
 
 🔗 **Live Demo**: [Click Here to Run App](https://kuancheen.github.io/christmas2025-blesseddraw/)
 
-This is a self-contained web application designed to facilitate real-time, non-repeating number draws for jackpot prizes. It runs entirely in your browser using local storage for persistence.
+This is a premium, self-contained web application designed for real-time, non-repeating number draws. Featuring a vibrant **Royal Blue and Gold** theme, it uses local storage for persistence and provides a smooth, state-of-the-art jackpot experience.
 
 ## 1. Running the App
 Simply open the `index.html` file in any modern web browser (Chrome, Edge, Safari, etc.).
@@ -30,11 +30,15 @@ The app uses your browser's local storage for data persistence, simulating a con
 
 You can control the status of prizes using two methods:
 
-### A. Disabling Prizes (Before Draw)
-If you need to temporarily skip a prize box for the next draw:
+### A. Toggling Prize Boxes (Interactive)
+The main prize boxes and the header are interactive:
+1.  **Box Toggle**: Click directly on any **Prize Box** to cycle its status: `Active` → `Disabled` → `Claimed`.
+2.  **Draw Trigger**: Click the **"Blessed Draw"** title header to trigger a draw (same as clicking "Start Draw").
+
+### B. Prize Status Settings (Manual)
 1.  Locate the "Active Prizes" section above the settings button.
 2.  Click the corresponding button (e.g., "`Prize 3 (Active)`").
-3.  The button will change to "`Disabled`," and the main prize box will turn gray, ensuring it is not included in the draw. Click it again to re-activate it.
+3.  The button will change to "`Disabled`," and the main prize box will turn gray. Click again to change to "`Claimed`" or re-activate.
 
 ### B. Claiming Drawn Numbers (After Draw)
 Once a number is drawn, you manage its claim status in the **Draw History** section:
@@ -49,10 +53,16 @@ Once a number is drawn, you manage its claim status in the **Draw History** sect
 3.  The active boxes will spin and reveal random, **unique** numbers from your available list.
 4.  The drawn numbers are automatically marked as "`Drawn`" internally so they cannot be picked again.
 
-## 5. Sound Effects
--   A drum roll sound plays automatically when you start a draw.
--   The sound is synchronized with each prize box's animation.
--   **Note**: Ensure your device volume is on. Browsers may block audio if you haven't interacted with the page (clicking "Start Draw" counts as interaction).
+## 5. Exporting Results
+You can easily save or share your draw history:
+1.  **Copy to Clipboard**: Click the **Copy** button in the "Draw History" section to copy the formatted text.
+2.  **CSV Download**: Click the **Download CSV** button to export your results for spreadsheet use.
+3.  **Notifications**: A theme-consistent modal will confirm your actions (e.g., "History Copied!").
+
+## 6. Sound Effects
+-   A high-quality **drum roll** sound plays sequentially for each prize draw.
+-   The sound is perfectly synchronized with each box's animation for maximum impact.
+-   **Note**: Ensure your device volume is on. Browsers may require an initial click (like "Start Draw") to enable audio.
 
 ## 6. Key Features
 - **Interactive Triggers**: Both the main title and individual prize boxes are interactive. Click the title to start a draw, or click a prize box to toggle its status.

@@ -936,7 +936,7 @@ const App = () => {
             {/* v2.1.1 Refactor: Standardized Footer - Single Row Layout */}
             <footer className="w-full mt-12 bg-slate-900/40 backdrop-blur-md border-t border-white/5 py-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-xs text-slate-500 font-mono tracking-wider">
                 <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4">
-                    <span className="font-bold text-slate-400">v2.1.1</span>
+                    <span className="font-bold text-slate-400">v2.1.2</span>
                     <span className="hidden sm:inline text-slate-700">|</span>
                     <a href="https://kuancheen.github.io/md-viewer/?https://github.com/kuancheen/christmas2025-blesseddraw/blob/main/README.md" target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors py-1">README</a>
                     <span className="hidden sm:inline text-slate-700">|</span>
