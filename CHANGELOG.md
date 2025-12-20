@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.1.0] - 2025-12-20
+### Changed
+- **Footer Structural Refactor**: Moved the floating version/badge div to a proper, centered `<footer>` element at the end of the page flow.
+- **Styling**: Added semi-opaque background and glassmorphism effect to the footer via `app.css`.
+- **Layout**: Optimized the main container to push the footer to the bottom of the screen while preserving content centering.
+
 ## [v2.0.1] - 2025-12-20
 ### Changed
 - **Footer Refinement**: Standardized `md-viewer` links for README and CHANGELOG.

@@ -818,131 +818,136 @@ const App = () => {
 
     // -- Render --
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-x-hidden">
+        <div className="min-h-screen flex flex-col items-center relative overflow-x-hidden">
+            <div className="flex-1 flex flex-col items-center justify-center w-full p-4">
 
-            {/* Background elements removed to let body background show through */}
-            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none mix-blend-overlay"></div>
-            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-blue-500/10 to-transparent -z-10"></div>
+                {/* Background elements removed to let body background show through */}
+                <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none mix-blend-overlay"></div>
+                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-blue-500/10 to-transparent -z-10"></div>
 
-            <div
-                onClick={() => !isDrawing && canDraw && handleDraw()}
-                className={`text-center mb-10 relative z-10 transition-all duration-300 transform ${canDraw && !isDrawing ? 'cursor-pointer hover:scale-105 active:scale-95' : ''}`}
-                title={canDraw && !isDrawing ? "Click to Start Draw" : ""}
-            >
-                <div className="flex flex-col items-center justify-center gap-2 mb-2">
-                    <h1 className="text-6xl md:text-8xl text-white drop-shadow-lg font-script tracking-wide transform -rotate-2">Blessed Draw</h1>
-                    <div className="h-1 w-32 bg-gradient-to-r from-transparent via-white to-transparent opacity-50"></div>
-                </div>
-                <p className="text-blue-100 tracking-[0.3em] text-sm font-semibold uppercase mt-2">Where Wisdom Finds Peace</p>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-4 md:gap-6 w-full max-w-7xl mb-12">
-                {boxes.map((box) => (
-                    <div key={box.id} className={`${itemClass} flex justify-center`}>
-                        <NumberBox
-                            id={box.id}
-                            label={box.label}
-                            number={box.currentNumber}
-                            isActive={box.active}
-                            isClaimed={box.claimed}
-                            revealedCount={revealCounts[box.id] || 0}
-                            isDrawing={isDrawing}
-                            setRef={el => numberBoxRefs.current[box.id] = el}
-                            onClick={() => !isDrawing && toggleBox(box.id)}
-                        />
+                <div
+                    onClick={() => !isDrawing && canDraw && handleDraw()}
+                    className={`text-center mb-10 relative z-10 transition-all duration-300 transform ${canDraw && !isDrawing ? 'cursor-pointer hover:scale-105 active:scale-95' : ''}`}
+                    title={canDraw && !isDrawing ? "Click to Start Draw" : ""}
+                >
+                    <div className="flex flex-col items-center justify-center gap-2 mb-2">
+                        <h1 className="text-6xl md:text-8xl text-white drop-shadow-lg font-script tracking-wide transform -rotate-2">Blessed Draw</h1>
+                        <div className="h-1 w-32 bg-gradient-to-r from-transparent via-white to-transparent opacity-50"></div>
                     </div>
-                ))}
-            </div>
+                    <p className="text-blue-100 tracking-[0.3em] text-sm font-semibold uppercase mt-2">Where Wisdom Finds Peace</p>
+                </div>
 
-            <div className="glass-panel rounded-2xl p-6 w-full max-w-4xl shadow-2xl">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="flex flex-wrap justify-center gap-4 md:gap-6 w-full max-w-7xl mb-12">
+                    {boxes.map((box) => (
+                        <div key={box.id} className={`${itemClass} flex justify-center`}>
+                            <NumberBox
+                                id={box.id}
+                                label={box.label}
+                                number={box.currentNumber}
+                                isActive={box.active}
+                                isClaimed={box.claimed}
+                                revealedCount={revealCounts[box.id] || 0}
+                                isDrawing={isDrawing}
+                                setRef={el => numberBoxRefs.current[box.id] = el}
+                                onClick={() => !isDrawing && toggleBox(box.id)}
+                            />
+                        </div>
+                    ))}
+                </div>
 
-                    <div className="flex-1 w-full">
-                        <h3 className="text-xs text-slate-400 uppercase tracking-wider mb-3 font-sans">Active Prizes</h3>
-                        <div className="flex flex-wrap gap-2 h-20 overflow-y-auto pr-2">
-                            {boxes.map(box => {
-                                let buttonClasses;
-                                if (box.active) {
-                                    buttonClasses = 'bg-amber-600/20 border-amber-600 text-amber-500 hover:bg-amber-600/30'; // Active (Gold)
-                                } else if (box.claimed) {
-                                    buttonClasses = 'bg-red-900/30 border-red-600 text-red-500 hover:bg-red-900/40'; // Claimed (Red)
-                                } else {
-                                    buttonClasses = 'bg-slate-800/30 border-slate-600 text-slate-500 hover:bg-slate-800/50'; // Disabled (Gray)
-                                }
+                <div className="glass-panel rounded-2xl p-6 w-full max-w-4xl shadow-2xl">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
 
-                                return (
-                                    <button
-                                        key={box.id}
-                                        onClick={() => !isDrawing && toggleBox(box.id)}
-                                        disabled={isDrawing}
-                                        className={`px-3 py-1.5 rounded text-xs font-bold transition-all border ${buttonClasses}`}
-                                    >
-                                        {box.label} ({box.active ? 'Active' : box.claimed ? 'Claimed' : 'Disabled'})
-                                    </button>
-                                );
-                            })}
+                        <div className="flex-1 w-full">
+                            <h3 className="text-xs text-slate-400 uppercase tracking-wider mb-3 font-sans">Active Prizes</h3>
+                            <div className="flex flex-wrap gap-2 h-20 overflow-y-auto pr-2">
+                                {boxes.map(box => {
+                                    let buttonClasses;
+                                    if (box.active) {
+                                        buttonClasses = 'bg-amber-600/20 border-amber-600 text-amber-500 hover:bg-amber-600/30'; // Active (Gold)
+                                    } else if (box.claimed) {
+                                        buttonClasses = 'bg-red-900/30 border-red-600 text-red-500 hover:bg-red-900/40'; // Claimed (Red)
+                                    } else {
+                                        buttonClasses = 'bg-slate-800/30 border-slate-600 text-slate-500 hover:bg-slate-800/50'; // Disabled (Gray)
+                                    }
+
+                                    return (
+                                        <button
+                                            key={box.id}
+                                            onClick={() => !isDrawing && toggleBox(box.id)}
+                                            disabled={isDrawing}
+                                            className={`px-3 py-1.5 rounded text-xs font-bold transition-all border ${buttonClasses}`}
+                                        >
+                                            {box.label} ({box.active ? 'Active' : box.claimed ? 'Claimed' : 'Disabled'})
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div className="w-full md:w-auto flex flex-col items-center">
+
+                            <div className="flex gap-4 w-full justify-center">
+                                <button
+                                    onClick={() => setShowSettings(true)}
+                                    disabled={isDrawing}
+                                    className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl flex items-center gap-2 transition-all shadow-md shadow-slate-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <LucideIcon name="settings" className="w-5 h-5" />
+                                    Settings
+                                </button>
+
+                                <button
+                                    onClick={handleDraw}
+                                    disabled={isDrawing || !canDraw}
+                                    className={`px-8 py-3 text-white font-bold text-lg rounded-xl flex items-center gap-2 transition-all ${drawButtonClasses}`}
+                                >
+                                    <LucideIcon name={drawButtonIcon} className="w-6 h-6" />
+                                    {drawButtonText}
+                                </button>
+                            </div>
+                            <p className="text-slate-500 text-xs mt-2">Available Numbers: {availableNumbersCount}</p>
                         </div>
                     </div>
-
-                    <div className="w-full md:w-auto flex flex-col items-center">
-
-                        <div className="flex gap-4 w-full justify-center">
-                            <button
-                                onClick={() => setShowSettings(true)}
-                                disabled={isDrawing}
-                                className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl flex items-center gap-2 transition-all shadow-md shadow-slate-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <LucideIcon name="settings" className="w-5 h-5" />
-                                Settings
-                            </button>
-
-                            <button
-                                onClick={handleDraw}
-                                disabled={isDrawing || !canDraw}
-                                className={`px-8 py-3 text-white font-bold text-lg rounded-xl flex items-center gap-2 transition-all ${drawButtonClasses}`}
-                            >
-                                <LucideIcon name={drawButtonIcon} className="w-6 h-6" />
-                                {drawButtonText}
-                            </button>
-                        </div>
-                        <p className="text-slate-500 text-xs mt-2">Available Numbers: {availableNumbersCount}</p>
-                    </div>
                 </div>
-            </div>
 
-            <div className="w-full max-w-4xl mt-6">
-                <HistoryLog
-                    drawHistory={drawHistory}
-                    toggleBox={toggleBox}
+                <div className="w-full max-w-4xl mt-6">
+                    <HistoryLog
+                        drawHistory={drawHistory}
+                        toggleBox={toggleBox}
+                        boxes={boxes}
+                        isDrawing={isDrawing}
+                    />
+                </div>
+
+                <SettingsModal
+                    isOpen={showSettings}
+                    onClose={() => setShowSettings(false)}
+                    numberPool={numberPool}
+                    setNumberPool={setNumberPool}
+                    resetData={resetData}
+                    prizeCount={prizeCount}
+                    setPrizeCount={setPrizeCount}
                     boxes={boxes}
-                    isDrawing={isDrawing}
                 />
+
             </div>
 
-            <SettingsModal
-                isOpen={showSettings}
-                onClose={() => setShowSettings(false)}
-                numberPool={numberPool}
-                setNumberPool={setNumberPool}
-                resetData={resetData}
-                prizeCount={prizeCount}
-                setPrizeCount={setPrizeCount}
-                boxes={boxes}
-            />
-
-            {/* Updated: Footer with Links & Badge */}
-            <div className="fixed bottom-3 right-4 flex flex-col items-end gap-1 text-xs text-slate-600 font-mono tracking-wider">
-                <div className="flex items-center gap-2">
-                    <span>v2.0.1</span>
-                    <span>|</span>
-                    <a href="https://kuancheen.github.io/md-viewer/?https://github.com/kuancheen/christmas2025-blesseddraw/blob/main/README.md" target="_blank" className="hover:text-amber-500 transition-colors">README</a>
-                    <span>|</span>
-                    <a href="https://kuancheen.github.io/md-viewer/?https://github.com/kuancheen/christmas2025-blesseddraw/blob/main/CHANGELOG.md" target="_blank" className="hover:text-amber-500 transition-colors">CHANGELOG</a>
-                    <span>|</span>
-                    <a href="https://github.com/kuancheen" target="_blank" className="hover:text-amber-500 transition-colors">&copy; 2025 Kuan Cheen</a>
+            {/* v2.1.0 Refactor: Standardized Footer at the end of the page flow */}
+            <footer className="w-full mt-12 bg-slate-900/40 backdrop-blur-md border-t border-white/5 py-8 flex flex-col items-center justify-center gap-3 text-xs text-slate-500 font-mono tracking-wider">
+                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4">
+                    <span className="font-bold text-slate-400">v2.1.0</span>
+                    <span className="hidden sm:inline text-slate-700">|</span>
+                    <a href="https://kuancheen.github.io/md-viewer/?https://github.com/kuancheen/christmas2025-blesseddraw/blob/main/README.md" target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors py-1">README</a>
+                    <span className="hidden sm:inline text-slate-700">|</span>
+                    <a href="https://kuancheen.github.io/md-viewer/?https://github.com/kuancheen/christmas2025-blesseddraw/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors py-1">CHANGELOG</a>
+                    <span className="hidden sm:inline text-slate-700">|</span>
+                    <a href="https://github.com/kuancheen" target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors py-1">&copy; 2025 Kuan Cheen</a>
                 </div>
-                <img src="https://hits.sh/github.com/kuancheen/christmas2025-blesseddraw.svg?view=today-total&style=flat-square&label=👁️%20Views&extraCount=0&color=6366f1" alt="Hits Badge" className="h-5 opacity-80 hover:opacity-100 transition-opacity" />
-            </div>
+                <div className="mt-1">
+                    <img src="https://hits.sh/github.com/kuancheen/christmas2025-blesseddraw.svg?view=today-total&style=flat-square&label=👁️%20Views&extraCount=0&color=6366f1" alt="Hits Badge" className="h-6 opacity-80 hover:opacity-100 transition-opacity" />
+                </div>
+            </footer>
 
         </div>
     );
