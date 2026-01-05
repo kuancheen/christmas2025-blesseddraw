@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.1.4] - 2026-01-06
+### Changed
+- **Branding**: Updated copyright year to `2025-2026` across all files to reflect current version.
+- **Compliance**: Finalized documentation and asset synchronization for stable release.
+
 ## [v2.1.3] - 2026-01-06
 ### Changed
 - **Branding**: Standardized Hits.sh view counter URL format to `owner.github.io` across `README.md` and application footer.

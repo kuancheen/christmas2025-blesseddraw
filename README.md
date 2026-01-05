@@ -1,5 +1,5 @@
-# Blessed Draw App (v2.1.3)
-![Version](https://img.shields.io/badge/version-v2.1.3-blue)
+# Blessed Draw App (v2.1.4)
+![Version](https://img.shields.io/badge/version-v2.1.4-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Semantic Versioning](https://img.shields.io/badge/semver-2.0.0-blue)
 ![Status](https://img.shields.io/badge/status-active-success)
@@ -73,5 +73,5 @@ You can easily save or share your draw history:
 
 ## 7. License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-Copyright (c) 2025 Kuan Cheen.
+Copyright (c) 2025-2026 Kuan Cheen.
 
