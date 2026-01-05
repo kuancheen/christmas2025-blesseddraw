@@ -1,9 +1,9 @@
-# Blessed Draw App (v2.1.2)
-![Version](https://img.shields.io/badge/version-v2.1.2-blue)
+# Blessed Draw App (v2.1.3)
+![Version](https://img.shields.io/badge/version-v2.1.3-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Semantic Versioning](https://img.shields.io/badge/semver-2.0.0-blue)
 ![Status](https://img.shields.io/badge/status-active-success)
-![Hits](https://hits.sh/github.com/kuancheen/christmas2025-blesseddraw.svg?view=today-total&style=flat&label=👁️%20Views&extraCount=0&color=6366f1)
+![Hits](https://hits.sh/kuancheen.github.io/christmas2025-blesseddraw.svg?view=today-total&style=flat&label=👁️%20Views&extraCount=0&color=6366f1)
 [![Live Demo](https://img.shields.io/badge/demo-online-orange)](https://kuancheen.github.io/christmas2025-blesseddraw/)
 
 🔗 **Live Demo**: [Click Here to Run App](https://kuancheen.github.io/christmas2025-blesseddraw/)

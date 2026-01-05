@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.1.3] - 2026-01-06
+### Changed
+- **Branding**: Standardized Hits.sh view counter URL format to `owner.github.io` across `README.md` and application footer.
+
 ## [v2.1.2] - 2025-12-20
 ### Changed
 - **Documentation Sync**: Synchronized `README.md` with all features and functionality changes documented in previous versions (Interactive Triggers, Export Features, Royal Blue & Gold Branding).
